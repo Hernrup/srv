@@ -1,0 +1,62 @@
+[general]
+
+# rsync log file
+#log = /var/log/backup/rsync.log
+#
+# backup partition mountpoint or backup main folder
+# this doesn't need to be a real partition, but should be at least the
+# main folder where the backup is being stored
+mountpoint = /mnt/disk1/backup/
+
+# folder relative do mountpoint where the backup should be stored
+backupdir = srv
+
+format = long
+# for long storage format, specify the number of daily backup increments
+keepdaily = 7
+
+# for long storage format, specify the number of weekly backup increments
+keepweekly = 4
+
+# for long storage format, specify the number of monthly backup increments
+keepmonthly = 12
+
+# rsync command nice level
+#nicelevel = 0
+
+# set to "yes" if your system isnt handling timestamps correctly
+#enable_mv_timestamp_bug = no
+
+# set to "yes" if you want to use multiconnection ssh support
+multiconnection = yes
+
+[source]
+from = local
+
+# include folder on backup
+include = /mnt/media_1/docs
+include = /mnt/media_1/home_movies
+include = /mnt/media_1/photos
+include = /mnt/media_1/serials
+
+# rsync command options
+#rsync_options = "-av --delete --recursive"
+
+# set to "yes" to rsync use a batch file as source
+batch = yes
+
+[dest]
+# backup destination type (local or remote)
+dest = remote
+testconnect = yes
+ssh = ssh
+protocol = ssh
+#compress = 0
+host = backup1.hernrup.se
+port = 2222
+user = mhe
+id_file = /root/.ssh/id_rsa
+remote_rsync = rsync
+
+# set to "yes" to rsync write a batch file from the changes
+batch = yes

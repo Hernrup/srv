@@ -1,0 +1,148 @@
+version: "3"
+services:
+    ssl-standalone:
+        image: certbot/certbot:latest
+        command: certonly --standalone --agree-tos --cert-name hernrup.se --email $LETSENCRYPT_EMAIL --renew-by-default $LETSENCRYPT_DOMAINS $LETSENCRYPT_DRY --verbose
+        volumes:
+            - .data/letsencrypt/etc:/etc/letsencrypt
+            - .data/letsencrypt/data:/data/letsencrypt
+        ports:
+            - "80:80"
+            - "443:443"
+    ssl:
+        image: certbot/certbot:latest
+        command: certonly --webroot --cert-name hernrup.se --webroot-path=/data/letsencrypt --agree-tos --email $LETSENCRYPT_EMAIL --renew-by-default $LETSENCRYPT_DOMAINS $LETSENCRYPT_DRY
+        volumes:
+            - .data/letsencrypt/etc:/etc/letsencrypt
+            - .data/letsencrypt/data:/data/letsencrypt
+
+    nginx:
+        image: nginx
+        restart: always
+        volumes:
+            - .data/letsencrypt/etc:/etc/letsencrypt
+            - .data/letsencrypt/data:/data/letsencrypt
+            - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+            - ./nginx/conf.d:/etc/nginx/conf.d
+            - ./nginx/snippets:/etc/nginx/snippets
+            - .data/nginx/.htpasswd:/etc/.htpasswd
+        ports:
+            - "80:80"
+            - "443:443"
+        depends_on:
+            - plex
+            - sonarr
+            - nzb
+            - potatoe
+            - registry
+        # links:
+            # - vpn:nzb
+
+    plex:
+        image: linuxserver/plex
+        restart: always
+        volumes:
+            - .data/plex:/config
+            - ${TV_DIR}:/data/tvshows
+            - ${MOVIE_DIR}:/data/movies
+        # network_mode: host
+        ports:
+            - "32400:32400"
+            - "32400:32400/udp"
+            - "32469:32469"
+            - "32469:32469/udp"
+            - "1900:1900/udp"
+
+    sonarr:
+        image: linuxserver/sonarr
+        restart: always
+        volumes:
+            - ".data/sonarr/etc:/config"
+            - "${TV_DIR}:/tv"
+            - .data/downloads:/downloads
+        # depends_on:
+            # - vpn
+        # links:
+            # - vpn:nzb
+
+    nzb:
+        image: linuxserver/sabnzbd
+        restart: always
+        volumes:
+            - .data/downloads:/downloads
+            - .data/nzb/incomplete:/incomplete-downloads
+            - .data/nzb/etc:/config
+        # depends_on:
+            # - vpn
+        # network_mode:
+            # "service:vpn"
+
+    potatoe:
+        image: linuxserver/couchpotato
+        restart: always
+        volumes:
+            - ".data/couchpotatoe/etc:/config"
+            - ".data/downloads:/downloads"
+            - "${MOVIE_DIR}:/movies"
+
+    registry:
+        restart: always
+        image: registry:2
+        environment:
+            REGISTRY_AUTH: htpasswd
+            REGISTRY_AUTH_HTPASSWD_PATH: /auth/.htpasswd
+            REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+        volumes:
+            - ".data/docker-registry:/var/lib/registry"
+            - .data/letsencrypt/etc/live/hernrup.se:/certs
+            - .data/registry/auth:/auth
+
+    vpn:
+        image: dperson/openvpn-client
+        cap_add:
+            - NET_ADMIN
+        volumes:
+            - .data/vpn:/vpn
+
+    backup:
+        image: docker.hernrup.se/hernrup/backup:develop
+        restart: always
+        build:
+            context: ./backupninja
+        volumes:
+            - .data/backupninja/.ssh:/root/.ssh
+            - ./backupninja/backupninja.conf:/etc/backupninja.conf
+            - ./backupninja/ssmtp.conf:/etc/ssmtp/ssmtp.conf
+            - ./backupninja/backup.d:/etc/backupninja
+            - /mnt/media_1:/mnt/media_1
+        # depends_on:
+            # - smtp
+    #
+    # smtp:
+    #     image: namshi/smtp
+    #     ports:
+    #         - "25:25"
+    #     environment:
+    #         GMAIL_USER: ${GMAIL_USER}
+    #         GMAIL_PASSWORD: ${GMAIL_PASSWORD}
+    #         MAILNAME: hernrup.se
+    #         # RELAY_NETWORKS: :0.0.0.0/0
+    #         # SMARTHOST_ADDRESS: ${SMTP_HOST}
+    #         # SMARTHOST_USER: ${SMTP_USER}
+    #         # SMARTHOST_PASSWORD: ${SMTP_PASSWORD}
+    #         # SMARTHOST_PORT: ${SMTP_PORT}
+    #         # SMARTHOST_ALIASES: "*.binero.se"
+    #     restart: always
+    #
+    ha:
+      image: homeassistant/home-assistant
+      volumes:
+        - .data/etc/homeassistant:/config
+        - /etc/localtime:/etc/localtime:ro
+      # devices:
+      #   - /dev/ttyUSB0:/dev/ttyUSB0
+      #   - /dev/ttyUSB1:/dev/ttyUSB1
+      #   - /dev/ttyACM0:/dev/ttyACM0
+      ports:
+          - "8123:8123"
+      restart: always
