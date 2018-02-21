@@ -1,0 +1,81 @@
+{
+  consul: "127.0.0.1:8500",
+  logging: {
+    level: "INFO",
+    format: "default",
+    output: "stdout"
+  },
+  jobs: [
+    {
+      name: "preStart",
+      exec: ["/usr/local/bin/consul-manage", "preStart"],
+    },
+    {
+      name: "consul",
+      port: 8500,
+      {{ if .DEVMODE }}exec: [
+        "/bin/consul", "agent", "-dev",
+        "-ui", "-config-dir=/etc/consul"],
+      {{ else }}exec: [
+        "/bin/consul", "agent", "-server", "-ui",
+        "-bootstrap-expect", "3", "-config-dir=/etc/consul"
+        ],{{ end }}
+      when: {
+        source: "preStart",
+        once: "exitSuccess"
+      },
+      health:{
+        exec: ["/usr/local/bin/consul-manage", "health"],
+        interval: 10,
+        ttl: 25
+      }
+    },
+    {
+      name: "try-auto-restore",
+      exec: "/lime/manager/manager.py try_auto_restore",
+      restarts: "never",
+      when: {
+        source: "consul",
+        once: "healthy"
+      }
+    },
+    {
+      name: "backup_consul_data",
+      exec: "/lime/manager/manager.py backup_consul_data",
+      restarts: "unlimited",
+      timeout: "1000000h",
+      when: {
+        interval: "1h"
+      }
+    },
+    {
+      name: "telegraf-consul-template",
+      exec: ["consul-template", "-config", "/etc/consul_template/telegraf.json"],
+      restarts: "unlimited"
+    },
+    {
+      name: "preStop",
+      exec: ["consul", "leave"],
+      when: {
+        source: "consul",
+        once: "stopping"
+      }
+    }
+  ],
+  control: {
+    socket: "/var/run/containerpilot.socket"
+  },
+  telemetry: {
+    port: 9090,
+    interfaces: ["static:127.0.0.1"],
+    metrics: [
+      {
+        namespace: "lime",
+        subsystem: "consul",
+        name: "backup_time",
+        help: "total time for backing up consul databases",
+        type: "gauge"
+      }
+    ]
+  }
+}

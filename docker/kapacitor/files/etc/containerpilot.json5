@@ -1,0 +1,44 @@
+{
+  consul: "localhost:8500",
+  logging: {
+    level: "INFO",
+    format: "default",
+    output: "stdout"
+  },
+  jobs: [
+    {
+      name: "preStart",
+      exec: ["/usr/local/bin/kapacitor-manage", "preStart"],
+    },
+    {
+      name: "kapacitor",
+      exec: "kapacitord",
+      restarts: "unlimited",
+      tags: [{{ range $TAG := env "TAGS" | split ";" }}"{{ $TAG }}", {{ end }}],
+      port: 8888,
+      when: {
+        source: "preStart",
+        once: "exitSuccess"
+      },
+      health: {
+        exec: "/usr/bin/curl --fail --silent --show-error --output /dev/null http://localhost:9092/kapacitor/v1/ping",
+        interval: 30,
+        ttl: 60
+      }
+    },
+    {
+      name: "consul-agent",
+      exec: "/usr/local/bin/consul_agent.sh",
+      restarts: "unlimited",
+    },
+    {
+      name: "telegraf-consul-template",
+      exec: ["consul-template", "-config", "/etc/consul_template/telegraf.json"],
+      restarts: "unlimited"
+    },
+  ],
+  telemetry: {
+    port: 9090,
+    interfaces: ["static:127.0.0.1"]
+  }
+}

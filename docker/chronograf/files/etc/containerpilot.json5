@@ -1,0 +1,37 @@
+{
+  consul: "localhost:8500",
+  logging: {
+    level: "INFO",
+    format: "default",
+    output: "stdout"
+  },
+  jobs: [
+    {
+      name: "chronograf",
+      exec: "/usr/bin/chronograf",
+      restarts: "unlimited",
+      tags: [{{ range $TAG := env "TAGS" | split ";" }}"{{ $TAG }}", {{ end }}],
+      port: 8888,
+      health: {
+        exec: "/usr/bin/curl --fail --silent --show-error --output /dev/null http://localhost:8888/chronograf/v1/",
+        interval: 30,
+        ttl: 60
+      }
+    },
+    {
+      name: "consul-agent",
+      exec: "/usr/local/bin/consul_agent.sh",
+      restarts: "unlimited",
+    },
+    {
+      name: "telegraf-consul-template",
+      exec: ["consul-template", "-config", "/etc/consul_template/telegraf.json"],
+      restarts: "unlimited"
+    },
+  ],
+  telemetry: {
+    port: 9090,
+    interfaces: ["static:127.0.0.1"]
+  }
+}
+

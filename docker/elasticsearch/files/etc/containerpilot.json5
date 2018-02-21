@@ -1,0 +1,52 @@
+{
+  consul: "localhost:8500",
+  logging: {
+    level: "INFO",
+    format: "default",
+    output: "stdout"
+  },
+  jobs: [
+    {
+      name: "elasticsearch",
+      exec: ["/usr/local/bin/start_elasticsearch.sh"],
+      restarts: "unlimited",
+      port: 9200,
+      tags: [{{ range $TAG := env "TAGS" | split ";" }}"{{ $TAG }}", {{ end }}],
+      health: {
+        exec: "/usr/bin/curl --insecure --fail --silent --show-error --output /dev/null http://localhost:9200",
+        interval: 10,
+        timeout: "10s",
+        ttl: 30
+      }
+    },
+    {
+      name: "consul-agent",
+      exec: "/usr/local/bin/consul_agent.sh",
+      restarts: "unlimited",
+      stopTimeout: "5s",
+      health: {
+        exec: "/usr/bin/curl --fail --silent --show-error --output /dev/null http://localhost:8500/v1/status/leader",
+        interval: 10,
+        timeout: "10s",
+        ttl: 30
+      }
+    },
+    {
+      name: "consul-leave",
+      exec: "consul leave",
+      when: {
+        source: "consul-agent",
+        once: "stopping"
+      }
+    },
+    {
+      name: "telegraf-consul-template",
+      exec: ["consul-template", "-config", "/etc/consul_template/telegraf.json"],
+      restarts: "unlimited"
+    },
+  ],
+  telemetry: {
+    port: 9090,
+    interfaces: ["static:127.0.0.1"]
+  }
+}

@@ -1,0 +1,6 @@
+{
+    "data_dir": "/var/consul",
+    "log_level": "INFO",
+    "leave_on_terminate": true,
+    "disable_host_node_id": true
+}

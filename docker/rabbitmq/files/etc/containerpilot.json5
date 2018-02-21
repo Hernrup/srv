@@ -1,0 +1,38 @@
+{
+  consul: "localhost:8500",
+  logging: {
+    level: "{{ .LOG_LEVEL | default "INFO" }}",
+    format: "default"
+  },
+  jobs: [
+    {
+      name: "rabbitmq",
+      exec: "/usr/local/bin/wrapper.sh rabbitmq-server",
+      restarts: "unlimited",
+      port: 5672,
+      health: {
+        exec: "rabbitmqctl node_health_check -q",
+        interval: 10,
+        ttl: 25
+      },
+      tags: [
+        {{ range $TAG := env "TAGS" | split ";" }}"{{ $TAG }}", {{ end }}
+        "version={{.RABBITMQ_VERSION}}"
+      ]
+    },
+    {
+      name: "consul-agent",
+      exec: "/usr/local/bin/consul_agent.sh",
+      restarts: "unlimited"
+    },
+    {
+      name: "telegraf-consul-template",
+      exec: ["consul-template", "-config", "/etc/consul_template/telegraf.json"],
+      restarts: "unlimited"
+    },
+  ],
+  telemetry: {
+    port: 9090,
+    interfaces: ["static:127.0.0.1"]
+  }
+}

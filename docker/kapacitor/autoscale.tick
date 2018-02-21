@@ -1,0 +1,37 @@
+// Target 80% cpu per container
+var target = 80.0
+
+var min = 1
+
+var max = 10
+
+var period = 5m
+
+var every = period
+
+stream
+    |from()
+        .measurement('docker_container_cpu')
+        .groupBy('container_name', 'com.docker.swarm.service.name')
+        .where(lambda: "cpu" == 'cpu-total')
+    |window()
+        .period(period)
+        .every(every)
+    |mean('usage_percent')
+        .as('mean_cpu')
+    |groupBy('com.docker.swarm.service.name')
+    |sum('mean_cpu')
+        .as('total_cpu')
+    |swarmAutoscale()
+        .cluster('lime-dev')
+        // Get the name of the service from "com.docker.swarm.service.name" tag.
+        .serviceNameTag('com.docker.swarm.service.name')
+        .min(min)
+        .max(max)
+        // Set the desired number of replicas based on target.
+        .replicas(lambda: int(ceil("total_cpu" / target)))
+    |influxDBOut()
+        .database('deployments')
+        .measurement('scale_events')
+        .precision('s')
+

@@ -1,0 +1,98 @@
+version: '3.2'
+
+services:
+  consul:
+    image: docker.lundalogik.com/lundalogik/crm/consul:latest
+    ports:
+        - 8500:8500
+    environment:
+      - CONSUL=consul
+      - CONSUL_BIND=10.80.0.0/24
+      - DATACENTER=dev
+    deploy:
+      replicas: 3
+    networks:
+      - ov
+
+  appserver:
+      image: docker.lundalogik.com/lundalogik/crm/app:latest
+      environment:
+          - CONTAINER=appserver
+          - CONSUL=consul
+          - CONSUL_BIND=10.80.0.0/24
+          - DEVMODE=True
+          - UWSGI_PROCESSES=2
+          - DATACENTER=dev
+      volumes:
+          - ~/.aws:/root/.aws
+      networks:
+          - ov
+
+  c2:
+      hostname: c2
+      image: docker.lundalogik.com/lundalogik/crm/c2:latest
+      environment:
+          - CONTAINER=c2
+          - CONSUL=consul
+          - SQLSERVER=sqlserver
+          - CONSUL_BIND=10.80.0.0/24
+          - DEVMODE=True
+          - BACKUP_BUCKET=lime-staging-sql-backups
+          - RESTORE_BUCKET=lime-database-import-staging
+          - AWS_DEFAULT_REGION=eu-west-1
+          - DATACENTER=dev
+      volumes:
+          - db_share:/var/lime/db
+          - /var/run/docker.sock:/var/run/docker.sock
+      networks:
+          - ov
+
+  monitoring-config:
+      image: docker.lundalogik.com/lundalogik/crm/monitoring-config:latest
+      environment:
+          - CONSUL=consul
+          - CONSUL_BIND=10.80.0.0/24
+          - DATACENTER=dev
+      networks:
+          - ov
+
+  influxdb:
+      image: influxdb:alpine
+      volumes:
+          - influx:/var/lib/influxdb
+      networks:
+          - ov
+  kapacitor:
+      image: docker.lundalogik.com/lundalogik/crm/kapacitor:latest
+      environment:
+          - CONTAINER=kapacitor
+          - CONSUL=consul
+          - CONSUL_BIND=10.80.0.0/24
+          - DATACENTER=dev
+          - MANAGER=192.168.32.232
+      networks:
+          - ov
+
+  chronograf:
+      image: docker.lundalogik.com/lundalogik/crm/chronograf:latest
+      ports:
+          - 8888:8888
+      environment:
+          - CONTAINER=chronograf
+          - CONSUL=consul
+          - CONSUL_BIND=10.80.0.0/24
+          - DATACENTER=dev
+      networks:
+          - ov
+
+volumes:
+    influx:
+      driver: local
+    db_share:
+      driver: local
+networks:
+    ov:
+        driver: overlay
+        ipam:
+            config:
+                - subnet: 10.80.0.0/24

@@ -1,0 +1,10 @@
+{
+  "datacenter": "DATACENTER",
+  "bind_addr": "CONTAINERPILOT_CONSUL_IP",
+  "client_addr": "0.0.0.0",
+  "data_dir": "/data",
+  "disable_update_check": true,
+  "log_level": "INFO",
+  "leave_on_terminate": true,
+  "disable_host_node_id": true
+}
