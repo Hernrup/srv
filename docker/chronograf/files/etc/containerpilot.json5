@@ -1,5 +1,5 @@
 {
-  consul: "localhost:8500",
+  consul: "consul:8500",
   logging: {
     level: "INFO",
     format: "default",
@@ -18,20 +18,6 @@
         ttl: 60
       }
     },
-    {
-      name: "consul-agent",
-      exec: "/usr/local/bin/consul_agent.sh",
-      restarts: "unlimited",
-    },
-    {
-      name: "telegraf-consul-template",
-      exec: ["consul-template", "-config", "/etc/consul_template/telegraf.json"],
-      restarts: "unlimited"
-    },
   ],
-  telemetry: {
-    port: 9090,
-    interfaces: ["static:127.0.0.1"]
-  }
 }
 

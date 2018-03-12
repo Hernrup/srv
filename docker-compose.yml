@@ -1,38 +1,34 @@
 version: "3"
 services:
-    ssl:
+    letsencypt:
         image: docker.hernrup.se/letsencypt
         build: docker/letsencrypt
-        command: certonly --webroot --webroot-path /var/www --agree-tos --cert-name hernrup.se --email temp@hernrup.se --renew-by-default -d test.hernrup.se --dry-run --verbose
+        restart: unless-stopped
+        command: certonly --webroot --webroot-path /var/www --agree-tos --cert-name hernrup.se --email $LETSENCRYPT_EMAIL --renew-by-default $LETSENCRYPT_DOMAINS
         volumes:
             - letsencrypt:/etc/letsencrypt
             - letsencrypt_webroot:/var/www
+        depends_on:
+            - nginx
 
     nginx:
-        build: docker/nginx
         image: docker.hernrup.se/nginx
-        restart: always
+        build: docker/nginx
+        restart: unless-stopped
         volumes:
             - letsencrypt:/etc/letsencrypt
             - letsencrypt_webroot:/var/letsencrypt
-
             # - ./docker/nginx/files/etc/nginx/:/etc/nginx/
             - .data/nginx/.htpasswd:/etc/.htpasswd
         ports:
             - "80:80"
             - "443:443"
-        depends_on:
-            - plex
-            - sonarr
-            - nzb
-            - potatoe
-            - registry
         # links:
             # - vpn:nzb
 
     plex:
         image: linuxserver/plex
-        restart: always
+        restart: unless-stopped
         volumes:
             - .data/plex:/config
             - ${TV_DIR}:/data/tvshows
@@ -47,11 +43,11 @@ services:
 
     sonarr:
         image: linuxserver/sonarr
-        restart: always
+        restart: unless-stopped
         volumes:
             - ".data/sonarr/etc:/config"
             - "${TV_DIR}:/tv"
-            - .data/downloads:/downloads
+            - downloads:/downloads
         # depends_on:
             # - vpn
         # links:
@@ -59,10 +55,10 @@ services:
 
     nzb:
         image: linuxserver/sabnzbd
-        restart: always
+        restart: unless-stopped
         volumes:
-            - .data/downloads:/downloads
-            - .data/nzb/incomplete:/incomplete-downloads
+            - downloads:/downloads
+            - nzb_temp:/incomplete-downloads
             - .data/nzb/etc:/config
         # depends_on:
             # - vpn
@@ -71,45 +67,45 @@ services:
 
     potatoe:
         image: linuxserver/couchpotato
-        restart: always
+        restart: unless-stopped
         volumes:
             - ".data/couchpotatoe/etc:/config"
-            - ".data/downloads:/downloads"
+            - downloads:/downloads
             - "${MOVIE_DIR}:/movies"
-
-    registry:
-        restart: always
-        image: registry:2
-        environment:
-            REGISTRY_AUTH: htpasswd
-            REGISTRY_AUTH_HTPASSWD_PATH: /auth/.htpasswd
-            REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
-        volumes:
-            - ".data/docker-registry:/var/lib/registry"
-            - .data/letsencrypt/etc/live/hernrup.se:/certs
-            - .data/registry/auth:/auth
-
-    vpn:
-        image: dperson/openvpn-client
-        cap_add:
-            - NET_ADMIN
-        volumes:
-            - .data/vpn:/vpn
-
-    backup:
-        image: docker.hernrup.se/hernrup/backup:develop
-        restart: always
-        build:
-            context: ./docker/backupninja
-        volumes:
-            - .data/backupninja/.ssh:/root/.ssh
-            - ./backupninja/backupninja.conf:/etc/backupninja.conf
-            - ./backupninja/ssmtp.conf:/etc/ssmtp/ssmtp.conf
-            - ./backupninja/backup.d:/etc/backupninja
-            - /mnt/media_1:/mnt/media_1
-        # depends_on:
-            # - smtp
     #
+    # registry:
+    #     restart: unless-stopped
+    #     image: registry:2
+    #     environment:
+    #         REGISTRY_AUTH: htpasswd
+    #         REGISTRY_AUTH_HTPASSWD_PATH: /auth/.htpasswd
+    #         REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+    #     volumes:
+    #         - ".data/docker-registry:/var/lib/registry"
+    #         - .data/letsencrypt/etc/live/hernrup.se:/certs
+    #         - .data/registry/auth:/auth
+    #
+    # vpn:
+    #     image: dperson/openvpn-client
+    #     cap_add:
+    #         - NET_ADMIN
+    #     volumes:
+    #         - .data/vpn:/vpn
+
+    # backup:
+    #     image: docker.hernrup.se/hernrup/backup:develop
+    #     restart: always
+    #     build:
+    #         context: ./docker/backupninja
+    #     volumes:
+    #         - .data/backupninja/.ssh:/root/.ssh
+    #         - ./docker/backupninja/backupninja.conf:/etc/backupninja.conf
+    #         - ./docker/backupninja/ssmtp.conf:/etc/ssmtp/ssmtp.conf
+    #         - ./docker/backupninja/backup.d:/etc/backupninja
+    #         - /mnt/media_1:/mnt/media_1
+    #     # depends_on:
+    #         # - smtp
+    # #
     # smtp:
     #     image: namshi/smtp
     #     ports:
@@ -126,21 +122,84 @@ services:
     #         # SMARTHOST_ALIASES: "*.binero.se"
     #     restart: always
     #
-    ha:
+    hass:
       image: homeassistant/home-assistant
+      restart: always
       volumes:
-        - .data/etc/homeassistant:/config
+        - config/homeassistant:/config
+        - .data/homeassistant:/data
         - /etc/localtime:/etc/localtime:ro
-      # devices:
-      #   - /dev/ttyUSB0:/dev/ttyUSB0
-      #   - /dev/ttyUSB1:/dev/ttyUSB1
-      #   - /dev/ttyACM0:/dev/ttyACM0
+      devices:
+          - /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A128MSXO-if00-port0:/dev/serial/by-id/usb-RFXCOM_RFXtrx433_A128MSXO-if00-port0
       ports:
           - "8123:8123"
-      restart: always
+
+    influxdb:
+        image: influxdb
+        restart: unless-stopped
+        ports:
+            - "8086:8086"
+        volumes:
+            - .data/influxdb:/var/lib/influxdb
+            - config/influxdb/influxdb.conf:/etc/influxdb/influxdb.conf
+
+    chronograf:
+        image: docker.hernrup.se/chronograf
+        restart: always
+        build: ./docker/chronograf
+        ports:
+            - "8888:8888"
+        volumes:
+            - .data/chronograf:/var/lib/chronograf
+
+    deconz:
+        image: joch/deconz
+        ports:
+            - "8080:8080"
+        volumes:
+            - .data/deconz:/root/.local/share/dresden-elektronik/deCONZ
+        devices:
+            - /dev/ttyUSB0
+        restart: unless-stopped
+        privileged: true
+
+    portainer:
+        image: portainer/portainer
+        volumes:
+            - .data/portainer:/data
+            - /var/run/docker.sock:/var/run/docker.sock
+        ports:
+            - "9000:9000"
+
+    mqtt:
+        container_name: MQTT
+        restart: unless-stopped
+        image: eclipse-mosquitto
+        volumes:
+            - config/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+            - .data/mosquitto:/mosquitto/data
+            - /etc/localtime:/etc/localtime:ro
+        ports:
+            - "1883:1883"
+            - "9001:9001"
+
+    grafana:
+        container_name: grafana
+        restart: unless-stopped
+        image: grafana/grafana
+        depends_on:
+            - "influxdb"
+        volumes:
+            - .data/grafana:/var/lib/grafana
+        ports:
+            - "3000:3000"
 
 volumes:
     letsencrypt:
         driver: local
     letsencrypt_webroot:
+        driver: local
+    downloads:
+        driver: local
+    nzb_temp:
         driver: local

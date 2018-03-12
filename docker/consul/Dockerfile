@@ -48,33 +48,17 @@ RUN export CONTAINERPILOT_VER=3.6.1 \
     && tar zxf /tmp/containerpilot.tar.gz -C /usr/local/bin \
     && rm /tmp/containerpilot.tar.gz
 
-# Install telegraf
-RUN export TELEGRAF_VERSION=1.4.3 \
-    && export TELEGRAF_CHECKSUM=6a82491fd8fd15eaeddce5188a932f7b13710579f185aa31100712361ba0a6bc \
-    && curl --retry 7 --fail -vo /tmp/telegraf.tar.gz "https://dl.influxdata.com/telegraf/releases/telegraf-${TELEGRAF_VERSION}-static_linux_amd64.tar.gz" \
-    && echo "${TELEGRAF_CHECKSUM}  /tmp/telegraf.tar.gz" | sha256sum -c \
-    && tar xf /tmp/telegraf.tar.gz -C /tmp \
-    && cp -r /tmp/telegraf/telegraf /usr/bin \
-    && rm /tmp/telegraf.tar.gz \
-    && rm -rf /tmp/telegraf
-
 # Install tools
 RUN pip3 install \
     click \
     python-consul \
     boto3
+
 # Make sure packup dir exists
 RUN mkdir -p /var/lime/backup_files
 
 # Copy all needed files
 COPY files /
-
-# Set LABEL on image.
-ARG GIT_REF
-LABEL git-ref=$GIT_REF
-
-# Seems to be needed for telegraf input system.
-RUN touch /var/run/utmp
 
 # Set timezone to Sweden.
 ENV TZ=Europe/Stockholm

@@ -15,7 +15,6 @@ CONSUL_CONFIG_DIR=/etc/consul
 exec /usr/local/bin/consul agent \
     -data-dir="$CONSUL_DATA_DIR" \
     -config-dir="$CONSUL_CONFIG_DIR" \
-    -datacenter ${DATACENTER} \
     -bind ${BIND} \
     -rejoin \
     -retry-join $CONSUL \
