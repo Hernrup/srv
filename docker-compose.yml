@@ -3,7 +3,6 @@ services:
     letsencypt:
         image: docker.hernrup.se/letsencypt
         build: docker/letsencrypt
-        restart: unless-stopped
         command: certonly --webroot --webroot-path /var/www --agree-tos --cert-name hernrup.se --email $LETSENCRYPT_EMAIL --renew-by-default $LETSENCRYPT_DOMAINS
         volumes:
             - letsencrypt:/etc/letsencrypt
@@ -33,13 +32,14 @@ services:
             - .data/plex:/config
             - ${TV_DIR}:/data/tvshows
             - ${MOVIE_DIR}:/data/movies
-        # network_mode: host
         ports:
             - "32400:32400"
             - "32400:32400/udp"
             - "32469:32469"
             - "32469:32469/udp"
             - "1900:1900/udp"
+        # networks:
+        #     - ov
 
     sonarr:
         image: linuxserver/sonarr
@@ -48,10 +48,14 @@ services:
             - ".data/sonarr/etc:/config"
             - "${TV_DIR}:/tv"
             - downloads:/downloads
+        ports:
+            - "8001:8989"
         # depends_on:
             # - vpn
         # links:
             # - vpn:nzb
+        networks:
+            - ov
 
     nzb:
         image: linuxserver/sabnzbd
@@ -60,10 +64,14 @@ services:
             - downloads:/downloads
             - nzb_temp:/incomplete-downloads
             - .data/nzb/etc:/config
+        ports:
+            - "8002:8080"
         # depends_on:
             # - vpn
         # network_mode:
             # "service:vpn"
+        networks:
+            - ov
 
     potatoe:
         image: linuxserver/couchpotato
@@ -72,6 +80,8 @@ services:
             - ".data/couchpotatoe/etc:/config"
             - downloads:/downloads
             - "${MOVIE_DIR}:/movies"
+        ports:
+            - "8003:5050"
     #
     # registry:
     #     restart: unless-stopped
@@ -122,11 +132,26 @@ services:
     #         # SMARTHOST_ALIASES: "*.binero.se"
     #     restart: always
     #
+    #
+
+    consul:
+        image: docker.hernrup.se/consul
+        build: docker/consul
+        ports:
+            - "8500:8500"
+        environment:
+            - CONSUL_BIND=10.98.0.0/24
+        networks:
+            - ov
+        volumes:
+            - consul:/data
+
+
     hass:
       image: homeassistant/home-assistant
       restart: always
       volumes:
-        - config/homeassistant:/config
+        - ./config/homeassistant:/config
         - .data/homeassistant:/data
         - /etc/localtime:/etc/localtime:ro
       devices:
@@ -141,16 +166,18 @@ services:
             - "8086:8086"
         volumes:
             - .data/influxdb:/var/lib/influxdb
-            - config/influxdb/influxdb.conf:/etc/influxdb/influxdb.conf
+            - "./config/influxdb/influxdb.conf:/etc/influxdb/influxdb.conf"
 
     chronograf:
         image: docker.hernrup.se/chronograf
-        restart: always
         build: ./docker/chronograf
+        restart: unless-stopped
         ports:
             - "8888:8888"
         volumes:
             - .data/chronograf:/var/lib/chronograf
+        networks:
+            - ov
 
     deconz:
         image: joch/deconz
@@ -170,18 +197,18 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock
         ports:
             - "9000:9000"
-
-    mqtt:
-        container_name: MQTT
-        restart: unless-stopped
-        image: eclipse-mosquitto
-        volumes:
-            - config/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
-            - .data/mosquitto:/mosquitto/data
-            - /etc/localtime:/etc/localtime:ro
-        ports:
-            - "1883:1883"
-            - "9001:9001"
+    #
+    # mqtt:
+    #     container_name: MQTT
+    #     restart: unless-stopped
+    #     image: eclipse-mosquitto
+    #     volumes:
+    #         - ./config/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    #         - .data/mosquitto:/mosquitto/data
+    #         - /etc/localtime:/etc/localtime:ro
+    #     ports:
+    #         - "1883:1883"
+    #         - "9001:9001"
 
     grafana:
         container_name: grafana
@@ -203,3 +230,12 @@ volumes:
         driver: local
     nzb_temp:
         driver: local
+    consul:
+        driver: local
+
+networks:
+    ov:
+        driver: bridge
+        ipam:
+            config:
+                - subnet: 10.98.0.0/24
