@@ -46,7 +46,6 @@ history:
 # Tracked history is kept for 10 days
 recorder:
   purge_keep_days: 30
-  db_url: sqlite:///data
 
 # View all events in a logbook
 logbook:
@@ -58,6 +57,7 @@ deconz:
       host: deconz
       port: 8080
       api_key: 14193794B3
+
 
 sensor:
   - platform: rfxtrx
@@ -76,10 +76,8 @@ sensor:
       - humidity
 
 influxdb:
-  host: influx
-  database: home_assistant
-  # username: MY_USERNAME
-  # password: MY_PASSWORD
+  host: influxdb
+  database: home
   ssl: false
   verify_ssl: false
   max_retries: 3

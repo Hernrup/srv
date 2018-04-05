@@ -1,4 +1,4 @@
-FROM chronograf:1.4.0.0-alpine
+FROM chronograf:1.4.2.3-alpine
 
 # Static stuff that is unlikely to ever change.
 CMD ["containerpilot"]
@@ -48,4 +48,5 @@ RUN apk --no-cache add tzdata \
     && cp /usr/share/zoneinfo/$TZ /etc/localtime \
     && echo $TZ > /etc/timezone
 
-ENV CONSUL=consul
+# ENV BOLT_PATH=/var/lib/chronograf
+WORKDIR /var/lib/chronograf

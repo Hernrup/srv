@@ -18,6 +18,15 @@
         ttl: 60
       }
     },
+    {
+      name: "preStop",
+      exec: ["consul", "leave", "-http-addr=http://consul:8500"],
+      when: {
+        source: "consul",
+        once: "stopping"
+      }
+    }
+ 
   ],
 }
 

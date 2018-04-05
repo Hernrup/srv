@@ -4,15 +4,10 @@ temperature:
     entities:
         - sensor.weather_temperature
         - sensor.carport_temperature
-        - sensor.weather_humidity
         - sensor.washing_room_temperature
-        - sensor.living_room
-        - sensor.t1
-        - sensor.t1_2
-        - sensor.t2
-        - sensor.t2_2
-        - sensor.t3
-        - sensor.t3_3
+        - sensor.living_room_temperature
+        - sensor.bed_room_temperature
+        - sensor.child_room_temperature
 
 weather:
     name: Weather

@@ -54,9 +54,6 @@ RUN pip3 install \
     python-consul \
     boto3
 
-# Make sure packup dir exists
-RUN mkdir -p /var/lime/backup_files
-
 # Copy all needed files
 COPY files /
 

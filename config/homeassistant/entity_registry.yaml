@@ -1,18 +1,18 @@
-sensor.humidity_2:
-  platform: deconz
-  unique_id: 00:15:8d:00:01:b8:cd:b3-01-0405
-sensor.temperature_1:
-  platform: deconz
-  unique_id: 00:15:8d:00:01:b8:cd:b3-01-0402
-sensor.t2:
-  platform: deconz
-  unique_id: 00:15:8d:00:01:c1:53:1f-01-0402
-sensor.t2_2:
+sensor.bed_room_humidity:
   platform: deconz
   unique_id: 00:15:8d:00:01:c1:53:1f-01-0405
-sensor.t3:
+sensor.bed_room_temperature:
+  platform: deconz
+  unique_id: 00:15:8d:00:01:c1:53:1f-01-0402
+sensor.living_room_temperature:
+  platform: deconz
+  unique_id: 00:15:8d:00:01:b8:cd:b3-01-0402
+sensor.child_room_temperature:
   platform: deconz
   unique_id: 00:15:8d:00:01:e7:b6:00-01-0402
-sensor.t3_2:
+sensor.living_room_humidity:
+  platform: deconz
+  unique_id: 00:15:8d:00:01:b8:cd:b3-01-0405
+sensor.child_room_humidity:
   platform: deconz
   unique_id: 00:15:8d:00:01:e7:b6:00-01-0405

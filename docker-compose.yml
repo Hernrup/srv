@@ -3,7 +3,8 @@ services:
     letsencypt:
         image: docker.hernrup.se/letsencypt
         build: docker/letsencrypt
-        command: certonly --webroot --webroot-path /var/www --agree-tos --cert-name hernrup.se --email $LETSENCRYPT_EMAIL --renew-by-default $LETSENCRYPT_DOMAINS
+        # command: certonly --webroot --webroot-path /var/www --agree-tos --cert-name hernrup.se --email $LETSENCRYPT_EMAIL --renew-by-default $LETSENCRYPT_DOMAINS
+        command: bash -c echo 'quit'
         volumes:
             - letsencrypt:/etc/letsencrypt
             - letsencrypt_webroot:/var/www
@@ -158,6 +159,8 @@ services:
           - /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A128MSXO-if00-port0:/dev/serial/by-id/usb-RFXCOM_RFXtrx433_A128MSXO-if00-port0
       ports:
           - "8123:8123"
+      networks:
+          - ov
 
     influxdb:
         image: influxdb
@@ -166,7 +169,8 @@ services:
             - "8086:8086"
         volumes:
             - .data/influxdb:/var/lib/influxdb
-            - "./config/influxdb/influxdb.conf:/etc/influxdb/influxdb.conf"
+        networks:
+            - ov
 
     chronograf:
         image: docker.hernrup.se/chronograf
@@ -189,14 +193,18 @@ services:
             - /dev/ttyUSB0
         restart: unless-stopped
         privileged: true
-
-    portainer:
-        image: portainer/portainer
-        volumes:
-            - .data/portainer:/data
-            - /var/run/docker.sock:/var/run/docker.sock
-        ports:
-            - "9000:9000"
+        networks:
+            - ov
+    #
+    # portainer:
+    #     image: portainer/portainer
+    #     volumes:
+    #         - .data/portainer:/data
+    #         - /var/run/docker.sock:/var/run/docker.sock
+    #     ports:
+    #         - "9000:9000"
+    #     networks:
+    #         - ov
     #
     # mqtt:
     #     container_name: MQTT
@@ -209,17 +217,6 @@ services:
     #     ports:
     #         - "1883:1883"
     #         - "9001:9001"
-
-    grafana:
-        container_name: grafana
-        restart: unless-stopped
-        image: grafana/grafana
-        depends_on:
-            - "influxdb"
-        volumes:
-            - .data/grafana:/var/lib/grafana
-        ports:
-            - "3000:3000"
 
 volumes:
     letsencrypt:

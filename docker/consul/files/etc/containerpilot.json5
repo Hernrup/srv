@@ -7,19 +7,9 @@
   },
   jobs: [
     {
-      name: "preStart",
-    },
-    {
       name: "consul",
-      port: 8500,
       exec: [
-        "/bin/consul", "agent", "-server", "-ui",
-        "-bootstrap-expect", "1", "-config-dir=/etc/consul"
-        ],
-      when: {
-        source: "preStart",
-        once: "exitSuccess"
-      },
+        "/bin/consul", "agent", "-server", "-ui", "-dev", "-config-dir=/etc/consul"],
     },
     {
       name: "preStop",

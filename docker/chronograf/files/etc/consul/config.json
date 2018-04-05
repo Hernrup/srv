@@ -1,5 +1,6 @@
 {
-    "data_dir": "/var/consul",
+    "client_addr": "0.0.0.0",
+    "data_dir": "/data",
     "log_level": "INFO",
     "leave_on_terminate": true,
     "disable_host_node_id": true
