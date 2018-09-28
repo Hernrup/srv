@@ -16,3 +16,17 @@ sensor.bed_room_humidity:
     hidden: True
 sensor.child_room_humidity:
     hidden: True
+
+light.play_area_downstairs:
+    assumed_state: false
+
+switch.living_room_power:
+    assumed_state: false
+
+switch.home_remote:
+    assumed_state: false
+
+switch.home:
+    icon: mdi:home
+    assumed_state: false
+

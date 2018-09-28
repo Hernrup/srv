@@ -1,0 +1,31 @@
+logLevel = "DEBUG"
+defaultEntryPoints = ["http", "https"]
+
+[web]
+address = ":8080"
+
+[entryPoints]
+    [entryPoints.http]
+    address = ":80"
+        [entryPoints.http.redirect]
+              entryPoint = "https"
+  [entryPoints.https]
+  address = ":443"
+  [entryPoints.https.tls]
+
+[acme]
+email = "mikael@hernrup.se"
+storageFile = "/etc/acme/acme.json"
+entryPoint = "https"
+acmeLogging=true
+onHostRule = true
+onDemand = false
+# caServer = "https://acme-staging.api.letsencrypt.org/directory"
+
+[acme.httpChallenge]
+entryPoint = "http"
+
+[docker]
+domain = "hernrup.se"
+watch = true
+exposedbydefault = false

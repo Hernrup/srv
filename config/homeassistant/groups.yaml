@@ -1,3 +1,11 @@
+toggles:
+    name: Modes
+    icon: mdi:home
+    entities:
+        - switch.home
+        - script.reload
+        - script.restart
+
 temperature:
     name: Environment
     icon: mdi:home
@@ -20,6 +28,11 @@ weather:
         - sensor.weather_wind_speed
         - sensor.weather_precipitation
 
+users:
+    name: Users
+    # icon: mdi:home
+    entities:
+        - device_tracker.theawesomephone
 
 alarm:
     name: Alarm
@@ -30,10 +43,30 @@ alarm:
         - binary_sensor.carport_2
         - binary_sensor.entry
 
+default_view:
+    name: Home
+    view: yes
+    entities:
+        - group.toggles
+        - group.users
+        - group.temperature
+        - group.alarm
+        - group.weather
+
 automation_view:
     name: Automation
     view: yes
     entities:
         - group.all_automations
         - group.all_scripts
+
+all_view:
+    name: All
+    view: yes
+    entities:
+        - group.all_automations
+        - group.all_scripts
+        - group.all_devices
+        - group.all_switches
+        - group.all_lights
 

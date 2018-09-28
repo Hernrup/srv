@@ -1,3 +1,5 @@
 *.db
 *.log
 secrets.yaml
+.storage
+html5_push_registrations.conf

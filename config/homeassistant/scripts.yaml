@@ -1,0 +1,15 @@
+restart:
+    alias: Restart
+    sequence:
+        - alias: Restart HA
+          service: homeassistant.restart
+
+reload:
+  alias: Reload
+  sequence:
+      - alias: Reload-core
+        service: homeassistant.reload_core_config
+      - alias: Reload-Automations
+        service: automation.reload
+      - alias: Reload-group
+        service: group.reload

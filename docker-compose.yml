@@ -1,46 +1,29 @@
 version: "3"
 services:
-    letsencypt:
-        image: docker.hernrup.se/letsencypt
-        build: docker/letsencrypt
-        # command: certonly --webroot --webroot-path /var/www --agree-tos --cert-name hernrup.se --email $LETSENCRYPT_EMAIL --renew-by-default $LETSENCRYPT_DOMAINS
-        command: bash -c echo 'quit'
-        volumes:
-            - letsencrypt:/etc/letsencrypt
-            - letsencrypt_webroot:/var/www
-        depends_on:
-            - nginx
-
-    nginx:
-        image: docker.hernrup.se/nginx
-        build: docker/nginx
-        restart: unless-stopped
-        volumes:
-            - letsencrypt:/etc/letsencrypt
-            - letsencrypt_webroot:/var/letsencrypt
-            # - ./docker/nginx/files/etc/nginx/:/etc/nginx/
-            - .data/nginx/.htpasswd:/etc/.htpasswd
-        ports:
-            - "80:80"
-            - "443:443"
-        # links:
-            # - vpn:nzb
 
     plex:
         image: linuxserver/plex
         restart: unless-stopped
         volumes:
             - .data/plex:/config
+            - .data/plex_tmp:/tmp
             - ${TV_DIR}:/data/tvshows
             - ${MOVIE_DIR}:/data/movies
+            - /mnt/media_1/home_movies:/data/home_movies
+            - /mnt/media_1/photos:/data/photos
         ports:
             - "32400:32400"
             - "32400:32400/udp"
             - "32469:32469"
             - "32469:32469/udp"
             - "1900:1900/udp"
-        # networks:
-        #     - ov
+        networks:
+            - ov
+        labels:
+            - "traefik.frontend.rule=Host:plex.hernrup.se"
+            - "traefik.enable=true"
+            - "traefik.port=32400"
+            - "traefik.frontend.auth.basic=admin:$$apr1$$gagmyckp$$QOlwxjImT3OO8DWi2Z.P5."
 
     sonarr:
         image: linuxserver/sonarr
@@ -57,6 +40,10 @@ services:
             # - vpn:nzb
         networks:
             - ov
+        labels:
+            - "traefik.frontend.rule=Host:tv.hernrup.se"
+            - "traefik.enable=true"
+            - "traefik.frontend.auth.basic=admin:$$apr1$$gagmyckp$$QOlwxjImT3OO8DWi2Z.P5."
 
     nzb:
         image: linuxserver/sabnzbd
@@ -73,6 +60,10 @@ services:
             # "service:vpn"
         networks:
             - ov
+        labels:
+            - "traefik.frontend.rule=Host:nzb.hernrup.se"
+            - "traefik.enable=true"
+            - "traefik.frontend.auth.basic=admin:$$apr1$$gagmyckp$$QOlwxjImT3OO8DWi2Z.P5."
 
     potatoe:
         image: linuxserver/couchpotato
@@ -83,6 +74,10 @@ services:
             - "${MOVIE_DIR}:/movies"
         ports:
             - "8003:5050"
+        labels:
+            - "traefik.frontend.rule=Host:movie.hernrup.se"
+            - "traefik.enable=true"
+            - "traefik.frontend.auth.basic=admin:$$apr1$$gagmyckp$$QOlwxjImT3OO8DWi2Z.P5."
     #
     # registry:
     #     restart: unless-stopped
@@ -144,6 +139,10 @@ services:
             - CONSUL_BIND=10.98.0.0/24
         networks:
             - ov
+        labels:
+            - "traefik.frontend.rule=Host:consul.hernrup.se"
+            - "traefik.enable=true"
+            - "traefik.frontend.auth.basic=admin:$$apr1$$gagmyckp$$QOlwxjImT3OO8DWi2Z.P5."
         volumes:
             - consul:/data
 
@@ -159,6 +158,9 @@ services:
           - /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A128MSXO-if00-port0:/dev/serial/by-id/usb-RFXCOM_RFXtrx433_A128MSXO-if00-port0
       ports:
           - "8123:8123"
+      labels:
+          - "traefik.frontend.rule=Host:hass.hernrup.se"
+          - "traefik.enable=true"
       networks:
           - ov
 
@@ -206,17 +208,49 @@ services:
     #     networks:
     #         - ov
     #
-    # mqtt:
-    #     container_name: MQTT
-    #     restart: unless-stopped
-    #     image: eclipse-mosquitto
-    #     volumes:
-    #         - ./config/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
-    #         - .data/mosquitto:/mosquitto/data
-    #         - /etc/localtime:/etc/localtime:ro
-    #     ports:
-    #         - "1883:1883"
-    #         - "9001:9001"
+    #
+    mqtt:
+        container_name: mqtt
+        restart: unless-stopped
+        image: eclipse-mosquitto
+        volumes:
+            - ./config/mosquitto:/mosquitto/config
+            - .data/mosquitto:/mosquitto/data
+            - /etc/localtime:/etc/localtime:ro
+        ports:
+            - "1883:1883"
+            - "9001:9001"
+        networks:
+            - ov
+
+
+    traefik:
+        image: traefik
+        command: --api --docker --docker.domain=hernrup.se
+        ports:
+            - "80:80"
+            - "443:443"
+            - "8009:8080"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - ./config/traefik/traefik.toml:/traefik.toml
+            - letsencrypt:/etc/acme
+        labels:
+            - "traefik.frontend.rule=Host:traefik.hernrup.se"
+            - "traefik.enable=true"
+            - "traefik.port=8080"
+            - "traefik.frontend.auth.basic=admin:$$apr1$$gagmyckp$$QOlwxjImT3OO8DWi2Z.P5."
+        networks:
+            - ov
+
+    whoami:
+        image: emilevauge/whoami
+        labels:
+            - "traefik.frontend.rule=Host:home.hernrup.se"
+            - "traefik.enable=true"
+            - "traefik.frontend.auth.basic=admin:$$apr1$$gagmyckp$$QOlwxjImT3OO8DWi2Z.P5."
+        networks:
+            - ov
 
 volumes:
     letsencrypt:
