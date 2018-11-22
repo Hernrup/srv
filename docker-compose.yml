@@ -98,20 +98,23 @@ services:
     #     volumes:
     #         - .data/vpn:/vpn
 
-    # backup:
-    #     image: docker.hernrup.se/hernrup/backup:develop
-    #     restart: always
-    #     build:
-    #         context: ./docker/backupninja
-    #     volumes:
-    #         - .data/backupninja/.ssh:/root/.ssh
-    #         - ./docker/backupninja/backupninja.conf:/etc/backupninja.conf
-    #         - ./docker/backupninja/ssmtp.conf:/etc/ssmtp/ssmtp.conf
-    #         - ./docker/backupninja/backup.d:/etc/backupninja
-    #         - /mnt/media_1:/mnt/media_1
-    #     # depends_on:
-    #         # - smtp
-    # #
+    backup:
+        image: docker.hernrup.se/hernrup/backup:1.0.0
+        restart: always
+        build:
+            context: ./backup
+        env_file:
+            - ./backup/.env
+        volumes:
+            - .data/backup/.ssh:/root/.ssh
+            - ./backup/backupninja.conf:/etc/backupninja.conf
+            # - ./docker/backupninja/ssmtp.conf:/etc/ssmtp/ssmtp.conf
+            - ./backup/backup.d:/etc/backupninja
+            - /mnt/media_1:/mnt/media_1
+            - backup_tmp:/tmp
+        # depends_on:
+            # - smtp
+    #
     # smtp:
     #     image: namshi/smtp
     #     ports:
@@ -262,6 +265,8 @@ volumes:
     nzb_temp:
         driver: local
     consul:
+        driver: local
+    backup_tmp:
         driver: local
 
 networks:
