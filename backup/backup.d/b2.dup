@@ -1,4 +1,4 @@
-options = --verbosity 8
+# options = --verbosity 8
 
 ## default is 0, but set to something like 19 if you want to lower the priority.
 ##

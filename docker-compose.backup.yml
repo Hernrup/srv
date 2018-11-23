@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+    backup:
+        image: docker.hernrup.se/hernrup/backup:1.0.0
+        hostname: backup
+        build:
+            context: ./backup
+        env_file:
+            - ./backup/.env
+        volumes:
+            - "${DATA_STORAGE_LOCATION}/backup/.ssh:/root/.ssh"
+            - ./backup/backupninja.conf:/etc/backupninja.conf
+            - ./backup/backup.d:/etc/backupninja
+            - /mnt/media_1:/mnt/media_1
+            - backup_tmp:/tmp
+
+volumes:
+    backup_tmp:
+        driver: local

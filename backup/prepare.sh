@@ -16,3 +16,5 @@ sed -i s/%B2_ACCOUNT_ID%/$B2_ACCOUNT_ID/g /etc/backup.d/b2.dup
 sed -i s/%B2_ACCESS_TOKEN%/$B2_ACCESS_TOKEN/g /etc/backup.d/b2.dup
 sed -i s/%B2_BUCKET%/$B2_BUCKET/g /etc/backup.d/b2.dup
 sed -i s/%DUPLICITY_PASSPHRASE%/$DUPLICITY_PASSPHRASE/g /etc/backup.d/b2.dup
+
+printenv | sed 's/^\(.*\)$/export \1/g' > /env.sh

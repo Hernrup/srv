@@ -9,16 +9,21 @@ services:
             - .data/plex_tmp:/tmp
             - ${TV_DIR}:/data/tvshows
             - ${MOVIE_DIR}:/data/movies
+            - /mnt/media_1/tmp_movies:/data/tmp_movies
             - /mnt/media_1/home_movies:/data/home_movies
             - /mnt/media_1/photos:/data/photos
+        environment:
+            - VERSION=latest
         ports:
             - "32400:32400"
             - "32400:32400/udp"
             - "32469:32469"
             - "32469:32469/udp"
             - "1900:1900/udp"
-        networks:
-            - ov
+            - "8889:8888"
+        network_mode: "host"
+        # networks:
+            # - ov
         labels:
             - "traefik.frontend.rule=Host:plex.hernrup.se"
             - "traefik.enable=true"
@@ -98,22 +103,6 @@ services:
     #     volumes:
     #         - .data/vpn:/vpn
 
-    backup:
-        image: docker.hernrup.se/hernrup/backup:1.0.0
-        restart: always
-        build:
-            context: ./backup
-        env_file:
-            - ./backup/.env
-        volumes:
-            - .data/backup/.ssh:/root/.ssh
-            - ./backup/backupninja.conf:/etc/backupninja.conf
-            # - ./docker/backupninja/ssmtp.conf:/etc/ssmtp/ssmtp.conf
-            - ./backup/backup.d:/etc/backupninja
-            - /mnt/media_1:/mnt/media_1
-            - backup_tmp:/tmp
-        # depends_on:
-            # - smtp
     #
     # smtp:
     #     image: namshi/smtp
@@ -156,6 +145,7 @@ services:
       volumes:
         - ./config/homeassistant:/config
         - .data/homeassistant:/data
+        - .:/src
         - /etc/localtime:/etc/localtime:ro
       devices:
           - /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A128MSXO-if00-port0:/dev/serial/by-id/usb-RFXCOM_RFXtrx433_A128MSXO-if00-port0
