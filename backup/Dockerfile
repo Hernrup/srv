@@ -24,6 +24,7 @@ RUN mkdir -p /root/.ssh
 ADD run.sh /run.sh
 ADD run_now.sh /run_now.sh
 ADD prepare.sh /prepare.sh
+ADD job.sh /job.sh
 ADD bin /bin
 
 CMD ["/run.sh"]
