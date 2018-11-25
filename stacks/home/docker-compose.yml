@@ -1,0 +1,53 @@
+version: "3"
+services:
+
+    hass:
+      image: homeassistant/home-assistant
+      restart: always
+      volumes:
+        - ../../services/homeassistant:/config
+        - /var/data/homeassistant:/data
+        - /etc/localtime:/etc/localtime:ro
+      devices:
+          - /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A128MSXO-if00-port0:/dev/serial/by-id/usb-RFXCOM_RFXtrx433_A128MSXO-if00-port0
+      ports:
+          - "8123:8123"
+      labels:
+          - "traefik.frontend.rule=Host:hass.hernrup.se"
+          - "traefik.enable=true"
+
+    influxdb:
+        image: influxdb
+        restart: unless-stopped
+        ports:
+            - "8086:8086"
+        volumes:
+            - /var/data/influxdb:/var/lib/influxdb
+
+    chronograf:
+        image: chronograf
+        command: chronograf --influxdb-url=http://influxdb:8086
+        ports:
+            - "8888:8888"
+        volumes:
+            - /var/data/chronograf:/var/lib/chronograf
+
+    deconz:
+        image: joch/deconz
+        ports:
+            - "8080:8080"
+        volumes:
+            - /var/data/deconz:/root/.local/share/dresden-elektronik/deCONZ
+        devices:
+            - /dev/ttyUSB0
+        privileged: true
+
+    mqtt:
+        image: eclipse-mosquitto
+        volumes:
+            - ../../services/mqtt:/mosquitto/config
+            - /var/data/mqtt:/mosquitto/data
+            - /etc/localtime:/etc/localtime:ro
+        ports:
+            - "1883:1883"
+            - "9001:9001"
