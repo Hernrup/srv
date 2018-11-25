@@ -126,7 +126,18 @@ influxdb:
   max_retries: 3
   default_measurement: state
   tags:
-    source: hass
+      source: hass
+  include:
+      entities:
+        - sensor.weather_temperature
+        - sensor.carport_temperature
+        - sensor.washing_room_temperature
+        - sensor.living_room_temperature
+        - sensor.bed_room_temperature
+        - sensor.child_room_temperature
+        - sensor.weather_humidity
+        - sensor.weather_wind_speed
+
 
 verisure:
     username: !secret verisure_username
