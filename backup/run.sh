@@ -8,9 +8,6 @@ STDERR_LOC=${STDERR_LOC:-/proc/1/fd/2}
 
 BACKUP_DECLARATIONS=${BACKUP_DECLARATIONS:-/etc/backup.d}
 
-echo "Preparing"
-. /prepare.sh
-
 printenv | sed 's/^\(.*\)$/export \1/g' > /env.sh
 chmod +x /env.sh
 

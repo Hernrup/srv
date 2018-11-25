@@ -18,6 +18,9 @@ signpassword = dummy_password
 
 [source]
 include = /mnt/media_1/serials
+include = /mnt/media_1/docs
+include = /mnt/media_1/photos
+include = /mnt/media_1/home_movies
 
 exclude = /home/*/.gnupg
 exclude = /var/cache/backupninja/duplicity
@@ -28,23 +31,18 @@ exclude = /var/cache/backupninja/duplicity
 ## perform an incremental backup? (default = yes)
 ## if incremental = no, perform a full backup in order to start a new backup set
 ##
-## Default: 
-# incremental = yes
+incremental = yes
 
 ## how many days of incremental backups before doing a full backup again ;
 ## default is 30 days (one can also use the time format of duplicity).
-## if increments = keep, never automatically perform a new full backup ; 
-## only perform incremental backups.
-##
-## Default:
-# increments = 30
+## if increments = keep, never automatically perform a new full backup ;
+increments = 6M
 
 ## how many days of data to keep ; default is 60 days.
 ## (you can also use the time format of duplicity)
 ## 'keep = yes' means : do not delete old data, the remote host will take care of this
 ##
-## Default:
-keep = yes
+keep = 3Y
 
 # for how many full backups do we keep their later increments ;
 # default is all (keep all increments).
@@ -52,7 +50,7 @@ keep = yes
 # recent ones (count provided) will be kept
 #
 ## Default:
-# keepincroffulls = all
+keepincroffulls = 2
 
 ## full destination URL, in duplicity format; if set, desturl overrides
 ## sshoptions, destdir, desthost and destuser; it also disables testconnect and
