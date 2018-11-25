@@ -49,6 +49,10 @@
       entity_id: device_tracker.theawesomephone
       from: 'not_home'
       to: 'home'
+  condition:
+      - condition: state
+        entity_id: switch.home
+        state: 'off'
   action:
       - service: switch.turn_on
         entity_id: switch.home
