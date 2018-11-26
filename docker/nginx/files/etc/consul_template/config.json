@@ -1,9 +1,0 @@
-{
-  "template": {
-    "source": "/etc/nginx/snippets/ssl.tpl",
-    "destination": "/etc/nginx/snippets/ssl.conf"
-  },
-  "exec": {
-    "reload_signal": "SIGHUP"
-  }
-}

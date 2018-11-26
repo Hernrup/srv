@@ -166,18 +166,6 @@ services:
             - .data/influxdb:/var/lib/influxdb
         networks:
             - ov
-
-    chronograf:
-        image: docker.hernrup.se/chronograf
-        build: ./docker/chronograf
-        restart: unless-stopped
-        ports:
-            - "8888:8888"
-        volumes:
-            - .data/chronograf:/var/lib/chronograf
-        networks:
-            - ov
-
     deconz:
         image: joch/deconz
         ports:
