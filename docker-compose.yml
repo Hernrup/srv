@@ -122,22 +122,6 @@ services:
     #
     #
 
-    consul:
-        image: docker.hernrup.se/consul
-        build: docker/consul
-        ports:
-            - "8500:8500"
-        environment:
-            - CONSUL_BIND=10.98.0.0/24
-        networks:
-            - ov
-        labels:
-            - "traefik.frontend.rule=Host:consul.hernrup.se"
-            - "traefik.enable=true"
-            - "traefik.frontend.auth.basic=admin:$$apr1$$gagmyckp$$QOlwxjImT3OO8DWi2Z.P5."
-        volumes:
-            - consul:/data
-
 
     hass:
       image: homeassistant/home-assistant
