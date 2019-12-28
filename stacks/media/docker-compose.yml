@@ -1,0 +1,112 @@
+version: "3"
+services:
+
+    emby:
+        image: emby/embyserver:latest
+        restart: unless-stopped
+        volumes:
+            - /srv/data/emby:/config
+            - /mnt/media_1/movies:/data/movies
+            - /mnt/media_1/photos:/data/photos:ro
+            - "/mnt/media_2/Series:/data/tv"
+            - "/mnt/media_1/cache/emby:/cache"
+        devices:
+            - /dev/dri/renderD128
+        network_mode: "host"
+
+
+    # plex:
+        # image: linuxserver/plex:159
+        # restart: unless-stopped
+        # volumes:
+            # - /srv/data/plex:/config
+            # - /srv/data/plex_tmp:/tmp
+            # - /mnt/media_2/Series:/data/tvshows
+            # - /mnt/media_1/movies:/data/movies
+            # - /mnt/media_1/tmp_movies:/data/tmp_movies
+            # - /mnt/media_1/home_movies:/data/home_movies
+            # - /mnt/media_1/photos:/data/photos
+        # environment:
+            # - VERSION=latest
+        # ports:
+            # - "32400:32400"
+            # - "32400:32400/udp"
+            # - "32469:32469"
+            # - "32469:32469/udp"
+            # - "1900:1900/udp"
+            # - "8889:8888"
+        # network_mode: "host"
+        # labels:
+            # - "traefik.frontend.rule=Host:plex.hernrup.se"
+            # - "traefik.enable=true"
+            # - "traefik.port=32400"
+            # - "traefik.frontend.auth.basic=admin:$$apr1$$gagmyckp$$QOlwxjImT3OO8DWi2Z.P5."
+#
+    sonarr:
+        image: linuxserver/sonarr
+        restart: unless-stopped
+        volumes:
+            - "/srv/data/sonarr/etc:/config"
+            - "/mnt/media_2/Series:/tv"
+            - /mnt/media_1/downloads:/downloads
+        ports:
+            - "8001:8989"
+        # depends_on:
+            # - vpn
+        # links:
+            # - vpn:nzb
+        labels:
+            - "traefik.frontend.rule=Host:tv.hernrup.se"
+            - "traefik.enable=true"
+            - "traefik.frontend.auth.basic=admin:$$apr1$$gagmyckp$$QOlwxjImT3OO8DWi2Z.P5."
+
+    nzb:
+        image: linuxserver/sabnzbd
+        restart: unless-stopped
+        volumes:
+            - "/mnt/media_1/downloads:/downloads"
+            - "/mnt/media_1/tmp_downloads:/incomplete-downloads"
+            - "/srv/data/nzb/etc:/config"
+        ports:
+            - "8002:8080"
+        # depends_on:
+            # - vpn
+        # network_mode:
+            # "service:vpn"
+        labels:
+            - "traefik.frontend.rule=Host:nzb.hernrup.se"
+            - "traefik.enable=true"
+            - "traefik.frontend.auth.basic=admin:$$apr1$$gagmyckp$$QOlwxjImT3OO8DWi2Z.P5."
+
+    potatoe:
+        image: linuxserver/couchpotato
+        restart: unless-stopped
+        volumes:
+            - "/srv/data/couchpotatoe/etc:/config"
+            - "/mnt/media_1/downloads:/downloads"
+            - "/mnt/media_1/movies:/movies"
+        ports:
+            - "8003:5050"
+        labels:
+            - "traefik.frontend.rule=Host:movie.hernrup.se"
+            - "traefik.enable=true"
+            - "traefik.frontend.auth.basic=admin:$$apr1$$gagmyckp$$QOlwxjImT3OO8DWi2Z.P5."
+
+    hydra:
+        image: linuxserver/hydra2
+        volumes:
+            - /mnt/media_1/downloads:/downloads
+            - /srv/data/hydra:/config
+            - /tmp:/tmp_host
+        ports:
+            - "5076:5076"
+        labels:
+            - "traefik.frontend.rule=Host:hydra.hernrup.se"
+            - "traefik.enable=true"
+            - "traefik.frontend.auth.basic=admin:$$apr1$$gagmyckp$$QOlwxjImT3OO8DWi2Z.P5."
+
+
+networks:
+    default:
+        external:
+            name: system_default

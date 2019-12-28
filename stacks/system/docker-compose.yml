@@ -1,0 +1,84 @@
+version: "3"
+services:
+
+    # registry:
+    #     restart: unless-stopped
+    #     image: registry:2
+    #     environment:
+    #         REGISTRY_AUTH: htpasswd
+    #         REGISTRY_AUTH_HTPASSWD_PATH: /auth/.htpasswd
+    #         REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+    #     volumes:
+    #         - ".data/docker-registry:/var/lib/registry"
+    #         - .data/letsencrypt/etc/live/hernrup.se:/certs
+    #         - .data/registry/auth:/auth
+    #
+    # vpn:
+    #     image: dperson/openvpn-client
+    #     cap_add:
+    #         - NET_ADMIN
+    #     volumes:
+    #         - .data/vpn:/vpn
+
+    # consul:
+    #     image: docker.hernrup.se/consul
+    #     build: docker/consul
+    #     ports:
+    #         - "8500:8500"
+    #     environment:
+    #         - CONSUL_BIND=10.98.0.0/24
+    #     networks:
+    #         - ov
+    #     labels:
+    #         - "traefik.frontend.rule=Host:consul.hernrup.se"
+    #         - "traefik.enable=true"
+    #         - "traefik.frontend.auth.basic=admin:$$apr1$$gagmyckp$$QOlwxjImT3OO8DWi2Z.P5."
+    #     volumes:
+    #         - consul:/data
+    #
+
+    # portainer:
+    #     image: portainer/portainer
+    #     volumes:
+    #         - .data/portainer:/data
+    #         - /var/run/docker.sock:/var/run/docker.sock
+    #     ports:
+    #         - "9000:9000"
+    #     networks:
+    #         - ov
+    #
+    #
+
+    traefik:
+        image: traefik
+        command: --api --docker --docker.domain=hernrup.se
+        ports:
+            - "80:80"
+            - "443:443"
+            - "8009:8080"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - ../../services/traefik/traefik.toml:/traefik.toml
+            - letsencrypt:/etc/acme
+        labels:
+            - "traefik.frontend.rule=Host:traefik.hernrup.se"
+            - "traefik.enable=true"
+            - "traefik.port=8080"
+            - "traefik.frontend.auth.basic=admin:$$apr1$$gagmyckp$$QOlwxjImT3OO8DWi2Z.P5."
+
+    whoami:
+        image: emilevauge/whoami
+        labels:
+            - "traefik.frontend.rule=Host:home.hernrup.se"
+            - "traefik.enable=true"
+            - "traefik.frontend.auth.basic=admin:$$apr1$$gagmyckp$$QOlwxjImT3OO8DWi2Z.P5."
+
+networks:
+    default:
+        driver: bridge
+
+volumes:
+    letsencrypt:
+        driver: local
+    consul:
+        driver: local
