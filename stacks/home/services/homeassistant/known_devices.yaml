@@ -254,3 +254,91 @@ ubuntu:
   name: ubuntu
   picture:
   track: true
+
+bc30d92ac1f8:
+  hide_if_away: true
+  icon:
+  mac: BC:30:D9:2A:C1:F8
+  name: bc30d92ac1f8
+  picture:
+  track: true
+
+a434d96fcaa7:
+  hide_if_away: true
+  icon:
+  mac: A4:34:D9:6F:CA:A7
+  name: a434d96fcaa7
+  picture:
+  track: true
+
+dc85defc1b57:
+  hide_if_away: true
+  icon:
+  mac: DC:85:DE:FC:1B:57
+  name: dc85defc1b57
+  picture:
+  track: true
+
+708bcd05c492:
+  hide_if_away: true
+  icon:
+  mac: 70:8B:CD:05:C4:92
+  name: 708bcd05c492
+  picture:
+  track: true
+
+6827373697f7:
+  hide_if_away: true
+  icon:
+  mac: 68:27:37:36:97:F7
+  name: 6827373697f7
+  picture:
+  track: true
+
+d43d7e32cb61:
+  hide_if_away: true
+  icon:
+  mac: D4:3D:7E:32:CB:61
+  name: d43d7e32cb61
+  picture:
+  track: true
+
+283b822aade2:
+  hide_if_away: true
+  icon:
+  mac: 28:3B:82:2A:AD:E2
+  name: 283b822aade2
+  picture:
+  track: true
+
+283b822aadde:
+  hide_if_away: true
+  icon:
+  mac: 28:3B:82:2A:AD:DE
+  name: 283b822aadde
+  picture:
+  track: true
+
+002324f32418:
+  hide_if_away: true
+  icon:
+  mac: 00:23:24:F3:24:18
+  name: 002324f32418
+  picture:
+  track: true
+
+audiocast:
+  hide_if_away: true
+  icon:
+  mac: E0:37:BF:95:2A:49
+  name: audiocast
+  picture:
+  track: true
+
+680715dcca26:
+  hide_if_away: true
+  icon:
+  mac: 68:07:15:DC:CA:26
+  name: 680715dcca26
+  picture:
+  track: true

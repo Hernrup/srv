@@ -2,23 +2,29 @@ version: "3"
 services:
 
     hass:
-      image: homeassistant/home-assistant
-      restart: always
-      volumes:
-        - ../../services/homeassistant:/config
-        - /var/data/homeassistant:/data
-        - /etc/localtime:/etc/localtime:ro
-      devices:
-          - /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A128MSXO-if00-port0:/dev/serial/by-id/usb-RFXCOM_RFXtrx433_A128MSXO-if00-port0
-      ports:
-          - "8123:8123"
-      labels:
-          - "traefik.frontend.rule=Host:hass.hernrup.se"
-          - "traefik.enable=true"
+        image: homeassistant/home-assistant:0.84.2
+        volumes:
+            - ./services/homeassistant:/config
+            - /var/data/homeassistant:/data
+            - /etc/localtime:/etc/localtime:ro
+        ports:
+            - "8123:8123"
+        labels:
+            - "traefik.frontend.rule=Host:hass.hernrup.se"
+            - "traefik.enable=true"
+        devices:
+            - /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A128MSXO-if00-port0:/dev/serial/by-id/usb-RFXCOM_RFXtrx433_A128MSXO-if00-port0
+
+    telldus:
+        image: docker.hernrup.se/hernrup/telldus:1.0.0
+        build:
+            context: ./services/telldus
+        volumes:
+            - ./services/telldus/tellstick.conf:/etc/tellstick.conf
+            - /dev/serial/by-id/usb-Telldus_TellStick_A900fJOt-if00-port0:/dev/tellstick
 
     influxdb:
         image: influxdb
-        restart: unless-stopped
         ports:
             - "8086:8086"
         volumes:
@@ -31,6 +37,10 @@ services:
             - "8888:8888"
         volumes:
             - /var/data/chronograf:/var/lib/chronograf
+        labels:
+            - "traefik.frontend.rule=Host:chronograf.hernrup.se"
+            - "traefik.enable=true"
+            - "traefik.frontend.auth.basic=admin:$$apr1$$gagmyckp$$QOlwxjImT3OO8DWi2Z.P5."
 
     deconz:
         image: joch/deconz
@@ -45,9 +55,14 @@ services:
     mqtt:
         image: eclipse-mosquitto
         volumes:
-            - ../../services/mqtt:/mosquitto/config
+            - ./services/mqtt:/mosquitto/config
             - /var/data/mqtt:/mosquitto/data
             - /etc/localtime:/etc/localtime:ro
         ports:
             - "1883:1883"
             - "9001:9001"
+
+networks:
+    default:
+        external:
+            name: system_default

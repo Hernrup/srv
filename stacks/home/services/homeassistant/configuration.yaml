@@ -13,6 +13,9 @@ homeassistant:
   # Customization file
   customize: !include customize.yaml
 
+lovelace:
+  mode: yaml
+
 # Enables the frontend
 frontend:
 
@@ -85,37 +88,69 @@ sensor:
       - windSpeed
       - humidity
 
+  - platform: alpha_vantage
+    api_key: !secret alphavantage
+    symbols:
+        - symbol: STO:LIME
+          name: Lime Tech
+
 switch:
     - platform: mqtt
       name: Home
       command_topic: "home/switch/set"
       assumed_state: false
     - platform: rfxtrx
-      automatic_add: false
+      automatic_add: true
       signal_repetitions: 2
       devices:
-          # singal on remote: IV-1
-          0b1100000180470a0d010f70:
-              name: Home remote
-              fire_event: True
-          # singal on remote: IV-2
-          0b1100090180470a0e010f70:
+          0b1100130180470a01010f70:
               name: Living room power
               fire_event: True
-          # singal on remote: IV-4
-          # 0b11000d0180470a10010f70:
-          #     name: button 4
-          #     fire_event: True
+    - platform: tellstick
 
 light:
     - platform: rfxtrx
-      automatic_add: False
+      automatic_add: true
       signal_repetitions: 2
       devices:
-          # singal on remote: IV-3
-          0b11000b0180470a0f010f70:
+          0b1100140180470a02010f70:
               name: Play area downstairs
               fire_event: True
+          0b1100270180470a05010f60:
+              name: Sofa lights
+              fire_event: True
+          0b11002b0180470a06010f70:
+              name: Whisky light
+              fire_event: True
+          0b1100390180470a07010f70:
+              name: Liquor cabinet
+              fire_event: True
+
+
+scene:
+    - name: Home
+      entities:
+          light.play_area_downstairs: true
+          switch.living_room_power: true
+          light.sofa_lights: true
+          light.whisky_light: true
+          light.liquor_cabinet: true
+
+    - name: Sleep
+      entities:
+          light.play_area_downstairs: false
+          switch.living_room_power: false
+          light.sofa_lights: false
+          light.whisky_light: false
+          light.liquor_cabinet: false
+
+    - name: Away
+      entities:
+          light.play_area_downstairs: false
+          switch.living_room_power: false
+          light.sofa_lights: false
+          light.whisky_light: false
+          light.liquor_cabinet: false
 
 
 influxdb:
@@ -160,23 +195,39 @@ script: !include scripts.yaml
 rfxtrx:
     device: /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A128MSXO-if00-port0
     debug: False
+#
+# tellstick:
+#     host: telldus
+#     port: 50800
+#
+
+google_assistant:
+    project_id: HomeAssistant
+    api_key: !secret google_assistant
+    expose_by_default: True
+    exposed_domains:
+        - switch
+        - light
+        - group
+        - scene
+
 
 notify:
     - name: notify
       platform: html5
       gcm_api_key: 'AAAA0WwCFEw:APA91bHYnWKNNCLwCL2_P86HVc0T4xJidQbcRJOUQvSrwXyiw-5pFAn2-5RyKr8YVq-GS6h3fren4EiQbv_taueI-y_xX5nSqIjAtQYx5f9c6SpaC7M8CE3EbO1bsrh427HJiuh43V8Z'
       gcm_sender_id: '899460240460'
-
-device_tracker:
-    - platform: asuswrt
-      host: 192.168.1.1
-      exclude:
-          - 192.168.1.4
-      username: !secret router_username
-      password: !secret router_password
-      interval_seconds: 15
-      consider_home: 180
-      new_device_defaults:
-          track_new_devices: True
-          hide_if_away: True
-
+#
+# device_tracker:
+#     - platform: asuswrt
+#       host: 192.168.1.1
+#       exclude:
+#           - 192.168.1.4
+#       username: !secret router_username
+#       password: !secret router_password
+#       interval_seconds: 15
+#       consider_home: 180
+#       new_device_defaults:
+#           track_new_devices: True
+#           hide_if_away: True
+#

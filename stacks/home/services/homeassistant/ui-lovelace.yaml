@@ -1,0 +1,173 @@
+title: Home
+views:
+    - title: Dashboard
+      cards:
+
+          - type: vertical-stack
+            cards:
+
+              - type: glance
+                title: Scenes
+                show_header_toggle: False
+                entities:
+                    - entity: scene.home
+                      tap_action: call_service
+                      service: scene.home
+                      icon: mdi:home
+                    - entity: scene.away
+                      tap_action: call_service
+                      service: scene.away
+                      icon: mdi:car
+                    - entity: scene.sleep
+                      tap_action: call_service
+                      service: sceen.turn_on
+                      icon: mdi:sleep
+
+              - type: entities
+                title: Switches
+                show_header_toggle: False
+                entities:
+                    - switch.living_room_power
+                    - light.sofa_lights
+                    - light.whisky_light
+                    - light.liquor_cabinet
+                    - light.play_area_downstairs
+
+
+          - type: vertical-stack
+            cards:
+              - type: glance
+                title: Inside
+                entities:
+                    - sensor.washing_room_temperature
+                    - sensor.living_room_temperature
+                    - sensor.bed_room_temperature
+                    - sensor.child_room_temperature
+
+
+              - type: history-graph
+                title: Inside
+                entities:
+                    - sensor.washing_room_temperature
+                    - sensor.living_room_temperature
+                    - sensor.bed_room_temperature
+                    - sensor.child_room_temperature
+
+          - type: vertical-stack
+            cards:
+              - type: glance
+                title: Outside
+                entities:
+                    - sensor.weather_temperature
+                    - sensor.carport_temperature
+
+
+              - type: history-graph
+                title: Outside
+                entities:
+                    - sensor.weather_temperature
+                    - sensor.carport_temperature
+
+          - type: glance
+            title: Weather
+            entities:
+                - sun.sun
+                - sensor.weather_symbol
+                - sensor.weather_temperature
+                - sensor.weather_humidity
+                - sensor.weather_wind_speed
+                - sensor.weather_precipitation
+
+          - type: glance
+            title: Alarm sensors
+            icon: mdi:alert
+            entities:
+                # - alarm_control_panel.sadebacksgatan_alarm
+                - binary_sensor.carport_1
+                - binary_sensor.carport_2
+                - binary_sensor.entry
+
+          - type: entities
+            entities:
+                - script.restart
+
+
+
+    - title: Sensors
+      cards:
+
+          - type: sensor
+            entity: sensor.weather_temperature
+            # name: Illumination
+            hours_to_show: 24
+            detail: 2
+            graph: line
+
+          - type: sensor
+            entity: sensor.weather_humidity
+            # name: Illumination
+            hours_to_show: 24
+            detail: 2
+            graph: line
+
+
+          - type: sensor
+            entity: sensor.carport_temperature
+            # name: Illumination
+            hours_to_show: 24
+            detail: 2
+            graph: line
+
+
+          - type: sensor
+            entity: sensor.washing_room_temperature
+            # name: Illumination
+            hours_to_show: 24
+            detail: 2
+            graph: line
+
+
+          - type: sensor
+            entity: sensor.living_room_temperature
+            # name: Illumination
+            hours_to_show: 24
+            detail: 2
+            graph: line
+
+          - type: sensor
+            entity: sensor.bed_room_temperature
+            # name: Illumination
+            hours_to_show: 24
+            detail: 2
+            graph: line
+
+          - type: sensor
+            entity: sensor.child_room_temperature
+            # name: Illumination
+            hours_to_show: 24
+            detail: 2
+            graph: line
+
+    - title: Alarm
+      cards:
+          - type: alarm-panel
+            name: Alarm
+            entity: alarm_control_panel.sadebacksgatan_alarm
+
+          # - type: entities
+          #   title: Modes
+          #   entities:
+          #       - switch.home
+          #       - script.reload
+          #       - script.restart
+          #
+          - type: entities
+            title: Alarm sensors
+            icon: mdi:alert
+            entities:
+                # - alarm_control_panel.sadebacksgatan_alarm
+                - binary_sensor.carport_1
+                - binary_sensor.carport_2
+                - binary_sensor.entry
+
+

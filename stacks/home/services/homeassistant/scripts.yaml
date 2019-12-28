@@ -13,3 +13,21 @@ reload:
         service: automation.reload
       - alias: Reload-group
         service: group.reload
+
+scene_home:
+  alias: Home
+  sequence:
+        service: scene.turn_on
+        entity_id: scene.home
+
+scene_away:
+  alias: Away
+  sequence:
+        service: scene.turn_on
+        entity_id: scene.away
+
+scene_sleep:
+    alias: Sleep
+    sequence:
+        service: scene.turn_on
+        entity_id: scene.sleep

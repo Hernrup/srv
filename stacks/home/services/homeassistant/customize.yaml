@@ -30,3 +30,9 @@ switch.home:
     icon: mdi:home
     assumed_state: false
 
+light.sofa_lights:
+    assumed_state: false
+light.whisky_light:
+    assumed_state: false
+light.liquor_cabinet:
+    assumed_state: false
