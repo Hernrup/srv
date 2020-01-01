@@ -1,0 +1,15 @@
+- platform: rfxtrx
+  automatic_add: True
+  devices:
+    0a520d00c801006b280169:
+      name: Carport
+      fire_event: True
+
+- platform: yr
+  name: Weather
+  monitored_conditions:
+    - temperature
+    - symbol
+    - precipitation
+    - windSpeed
+    - humidity

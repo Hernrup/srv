@@ -1,0 +1,16 @@
+- platform: rfxtrx
+  automatic_add: true
+  signal_repetitions: 2
+  devices:
+      0b1100140180470a02010f70:
+          name: Play area downstairs
+          fire_event: True
+      0b1100270180470a05010f60:
+          name: Sofa lights
+          fire_event: True
+      0b11002b0180470a06010f70:
+          name: Whisky light
+          fire_event: True
+      0b1100390180470a07010f70:
+          name: Liquor cabinet
+          fire_event: True

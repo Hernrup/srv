@@ -1,18 +1,11 @@
 homeassistant:
-  # Name of the location where Home Assistant is running
   name: Home
-  # Location required to calculate the time the sun rises and sets
   latitude: 59.0831
   longitude: 12.9331
-  # Impacts weather/sunrise data (altitude above sea level in meters)
   elevation: 0
-  # metric for Metric, imperial for Imperial
   unit_system: metric
-  # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   time_zone: Europe/Stockholm
-  # Customization file
   customize: !include customize.yaml
-
   auth_providers:
     - type: legacy_api_password
       api_password: !secret http_password
@@ -20,29 +13,16 @@ homeassistant:
 lovelace:
   mode: yaml
 
-# Enables the frontend
 frontend:
 
-# Enables configuration UI
 config:
 
 http:
-  # Uncomment this if you are using SSL/TLS, running in Docker container, etc.
   base_url: hass.hernrup.se
 
 mqtt:
     broker: mqtt
 
-# Checks for available updates
-# Note: This component will send some information about your system to
-# the developers to assist with development of Home Assistant.
-# For more information, please see:
-# https://home-assistant.io/blog/2016/10/25/explaining-the-updater/
-updater:
-  # Optional, allows Home Assistant developers to focus on popular components.
-  # include_used_components: true
-
-# Discover some devices automatically
 discovery:
     ignore:
         - plex_mediaserver
@@ -74,79 +54,10 @@ deconz:
       host: deconz
       api_key: !secret deconz_api_key
 
-
-sensor:
-  - platform: rfxtrx
-    automatic_add: True
-    devices:
-        0a520d00c801006b280169:
-            name: Carport
-            fire_event: True
-  - platform: yr
-    name: Weather
-    monitored_conditions:
-      - temperature
-      - symbol
-      - precipitation
-      - windSpeed
-      - humidity
-
-switch:
-    - platform: mqtt
-      name: Home
-      command_topic: "home/switch/set"
-    - platform: rfxtrx
-      automatic_add: true
-      signal_repetitions: 2
-      devices:
-          0b1100130180470a01010f70:
-              name: Living room power
-              fire_event: True
-
-light:
-    - platform: rfxtrx
-      automatic_add: true
-      signal_repetitions: 2
-      devices:
-          0b1100140180470a02010f70:
-              name: Play area downstairs
-              fire_event: True
-          0b1100270180470a05010f60:
-              name: Sofa lights
-              fire_event: True
-          0b11002b0180470a06010f70:
-              name: Whisky light
-              fire_event: True
-          0b1100390180470a07010f70:
-              name: Liquor cabinet
-              fire_event: True
-
-
-scene:
-    - name: Home
-      entities:
-          light.play_area_downstairs: true
-          switch.living_room_power: true
-          light.sofa_lights: true
-          light.whisky_light: true
-          light.liquor_cabinet: true
-
-    - name: Sleep
-      entities:
-          light.play_area_downstairs: false
-          switch.living_room_power: false
-          light.sofa_lights: false
-          light.whisky_light: false
-          light.liquor_cabinet: false
-
-    - name: Away
-      entities:
-          light.play_area_downstairs: false
-          switch.living_room_power: false
-          light.sofa_lights: false
-          light.whisky_light: false
-          light.liquor_cabinet: false
-
+sensor: !include sensor.yaml
+switch: !include switch.yaml
+light: !include lights.yaml
+scene: !include scene.yaml
 
 influxdb:
   host: influxdb
