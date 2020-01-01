@@ -47,8 +47,8 @@ logger:
     default: warn
     logs:
         homeassistant.components.device_tracker: info
-        pydeconz: debug
-        homeassistant.components.deconz: debug
+        pydeconz: info
+        homeassistant.components.deconz: info
 
 deconz:
       host: deconz
@@ -95,7 +95,7 @@ script: !include scripts.yaml
 
 rfxtrx:
     device: /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A128MSXO-if00-port0
-    debug: True
+    debug: False
 
 google_assistant:
     project_id: HomeAssistant
