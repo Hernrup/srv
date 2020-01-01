@@ -2,7 +2,7 @@ version: "3"
 services:
 
     hass:
-        image: homeassistant/home-assistant:0.84.2
+        image: homeassistant/home-assistant:0.103.5
         volumes:
             - ./services/homeassistant:/config
             - /var/data/homeassistant:/data
@@ -14,43 +14,37 @@ services:
             - "traefik.enable=true"
         devices:
             - /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A128MSXO-if00-port0:/dev/serial/by-id/usb-RFXCOM_RFXtrx433_A128MSXO-if00-port0
-
-    telldus:
-        image: docker.hernrup.se/hernrup/telldus:1.0.0
-        build:
-            context: ./services/telldus
-        volumes:
-            - ./services/telldus/tellstick.conf:/etc/tellstick.conf
-            - /dev/serial/by-id/usb-Telldus_TellStick_A900fJOt-if00-port0:/dev/tellstick
+        restart: unless-stopped
 
     influxdb:
         image: influxdb
-        ports:
-            - "8086:8086"
         volumes:
             - /var/data/influxdb:/var/lib/influxdb
+        restart: unless-stopped
 
     chronograf:
         image: chronograf
         command: chronograf --influxdb-url=http://influxdb:8086
-        ports:
-            - "8888:8888"
         volumes:
             - /var/data/chronograf:/var/lib/chronograf
         labels:
             - "traefik.frontend.rule=Host:chronograf.hernrup.se"
             - "traefik.enable=true"
             - "traefik.frontend.auth.basic=admin:$$apr1$$gagmyckp$$QOlwxjImT3OO8DWi2Z.P5."
+        restart: unless-stopped
 
     deconz:
-        image: joch/deconz
-        ports:
-            - "8080:8080"
+        image: marthoc/deconz:amd64-2.05.71
         volumes:
             - /var/data/deconz:/root/.local/share/dresden-elektronik/deCONZ
         devices:
             - /dev/ttyUSB0
         privileged: true
+        labels:
+            - "traefik.port=8080"
+        restart: unless-stopped
+        environment:
+            - DECONZ_WEB_PORT=8080
 
     mqtt:
         image: eclipse-mosquitto
@@ -61,6 +55,7 @@ services:
         ports:
             - "1883:1883"
             - "9001:9001"
+        restart: unless-stopped
 
 networks:
     default:

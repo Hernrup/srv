@@ -13,6 +13,10 @@ homeassistant:
   # Customization file
   customize: !include customize.yaml
 
+  auth_providers:
+    - type: legacy_api_password
+      api_password: !secret http_password
+
 lovelace:
   mode: yaml
 
@@ -23,8 +27,6 @@ frontend:
 config:
 
 http:
-  # Secrets are defined in the file secrets.yaml
-  api_password: !secret http_password
   # Uncomment this if you are using SSL/TLS, running in Docker container, etc.
   base_url: hass.hernrup.se
 
@@ -65,18 +67,19 @@ logger:
     default: warn
     logs:
         homeassistant.components.device_tracker: info
+        pydeconz: debug
+        homeassistant.components.deconz: debug
 
 deconz:
       host: deconz
-      port: 8080
-      api_key: 14193794B3
+      api_key: !secret deconz_api_key
 
 
 sensor:
   - platform: rfxtrx
     automatic_add: True
     devices:
-        0850091e9040003c69:
+        0a520d00c801006b280169:
             name: Carport
             fire_event: True
   - platform: yr
@@ -88,17 +91,10 @@ sensor:
       - windSpeed
       - humidity
 
-  - platform: alpha_vantage
-    api_key: !secret alphavantage
-    symbols:
-        - symbol: STO:LIME
-          name: Lime Tech
-
 switch:
     - platform: mqtt
       name: Home
       command_topic: "home/switch/set"
-      assumed_state: false
     - platform: rfxtrx
       automatic_add: true
       signal_repetitions: 2
@@ -106,7 +102,6 @@ switch:
           0b1100130180470a01010f70:
               name: Living room power
               fire_event: True
-    - platform: tellstick
 
 light:
     - platform: rfxtrx
@@ -178,15 +173,10 @@ verisure:
     username: !secret verisure_username
     password: !secret verisure_password
 
-# media_player:
-#     - platform: plex
-
 # Text to speech
 tts:
-  - platform: google
-
-# Cloud
-# cloud:
+  - platform: google_translate
+    service_name: google_say
 
 group: !include groups.yaml
 automation: !include automations.yaml
@@ -194,12 +184,7 @@ script: !include scripts.yaml
 
 rfxtrx:
     device: /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A128MSXO-if00-port0
-    debug: False
-#
-# tellstick:
-#     host: telldus
-#     port: 50800
-#
+    debug: True
 
 google_assistant:
     project_id: HomeAssistant
@@ -211,12 +196,12 @@ google_assistant:
         - group
         - scene
 
-
 notify:
     - name: notify
       platform: html5
-      gcm_api_key: 'AAAA0WwCFEw:APA91bHYnWKNNCLwCL2_P86HVc0T4xJidQbcRJOUQvSrwXyiw-5pFAn2-5RyKr8YVq-GS6h3fren4EiQbv_taueI-y_xX5nSqIjAtQYx5f9c6SpaC7M8CE3EbO1bsrh427HJiuh43V8Z'
-      gcm_sender_id: '899460240460'
+      vapid_pub_key: !secret vapid_pub_key
+      vapid_prv_key: !secret vapid_prv_key
+      vapid_email: !secret vapid_email
 #
 # device_tracker:
 #     - platform: asuswrt
