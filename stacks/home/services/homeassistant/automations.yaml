@@ -61,7 +61,11 @@
             title: 'Micke is home'
             message: 'Home mode set'
 
- 
-
-
-
+- alias: Set theme at startup
+  trigger:
+    - platform: homeassistant
+      event: start
+  action:
+    service: frontend.set_theme
+    data:
+      name: dark

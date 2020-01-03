@@ -4,15 +4,18 @@ restart:
         - alias: Restart HA
           service: homeassistant.restart
 
+reload_themes:
+    alias: Reload themes
+    sequence:
+        - alias: Reload themes
+          service: frontend.reload_themes
+
 reload:
   alias: Reload
   sequence:
-      - alias: Reload-core
-        service: homeassistant.reload_core_config
-      - alias: Reload-Automations
-        service: automation.reload
-      - alias: Reload-group
-        service: group.reload
+      - service: homeassistant.reload_core_config
+      - service: automation.reload
+      - service: frontend.reload_themes
 
 scene_home:
   alias: Home

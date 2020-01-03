@@ -10,10 +10,13 @@ homeassistant:
     - type: legacy_api_password
       api_password: !secret http_password
 
+default_config:
+
 lovelace:
   mode: yaml
 
 frontend:
+  themes: !include themes.yaml
 
 config:
 
@@ -43,6 +46,7 @@ logbook:
 # Track the sun
 sun:
 
+
 logger:
     default: warn
     logs:
@@ -58,6 +62,11 @@ sensor: !include sensor.yaml
 switch: !include switch.yaml
 light: !include lights.yaml
 scene: !include scene.yaml
+
+weather:
+  - platform: darksky
+    name: darksky
+    api_key: !secret darksky
 
 influxdb:
   host: influxdb
@@ -89,7 +98,7 @@ tts:
   - platform: google_translate
     service_name: google_say
 
-group: !include groups.yaml
+# group: !include groups.yaml
 automation: !include automations.yaml
 script: !include scripts.yaml
 

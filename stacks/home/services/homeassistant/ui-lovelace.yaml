@@ -1,6 +1,7 @@
 title: Home
 views:
     - title: Dashboard
+      icon: mdi:tablet-dashboard
       cards:
 
           - type: vertical-stack
@@ -12,11 +13,11 @@ views:
                 entities:
                     - entity: scene.home
                       tap_action: call_service
-                      service: scene.home
+                      service: scene.turn_on
                       icon: mdi:home
                     - entity: scene.away
                       tap_action: call_service
-                      service: scene.away
+                      service: scene.turn_on
                       icon: mdi:car
                     - entity: scene.sleep
                       tap_action: call_service
@@ -33,6 +34,16 @@ views:
                     - light.liquor_cabinet
                     - light.play_area_downstairs
 
+              - type: picture-glance
+                title: Living room
+                tap_action: toggle
+                entities:
+                  - switch.living_room_power
+                  - light.sofa_lights
+                  - light.whisky_light
+                  - light.liquor_cabinet
+                image: https://img-new.cgtrader.com/items/2101907/c04f740c8a/apartment-livingroom-modern-3d-model-skp.jpg
+
 
           - type: vertical-stack
             cards:
@@ -67,14 +78,15 @@ views:
                 entities:
                     - sensor.weather_temperature
                     - sensor.carport_temperature
+
+          - type: weather-forecast
+            entity: weather.darksky
 
           - type: glance
             title: Weather
             entities:
-                - sun.sun
                 - sensor.weather_symbol
                 - sensor.weather_temperature
-                - sensor.weather_humidity
                 - sensor.weather_wind_speed
                 - sensor.weather_precipitation
 
@@ -90,10 +102,13 @@ views:
           - type: entities
             entities:
                 - script.restart
+                - script.reload
+                - script.reload_themes
 
 
 
     - title: Sensors
+      icon: mdi:thermometer
       cards:
 
           - type: sensor
@@ -149,6 +164,7 @@ views:
             graph: line
 
     - title: Alarm
+      icon: mdi:shield-lock
       cards:
           - type: alarm-panel
             name: Alarm
@@ -169,5 +185,11 @@ views:
                 - binary_sensor.carport_1
                 - binary_sensor.carport_2
                 - binary_sensor.entry
+
+    - title: Map
+      icon: mdi:map
+      cards:
+        - type: map
+          entities: []
 
 
