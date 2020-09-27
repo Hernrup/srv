@@ -7,6 +7,7 @@ services:
         volumes:
             - /srv/data/emby:/config
             - /mnt/media_1/movies:/data/movies
+            - /mnt/media_1/home_movies:/data/home_movies
             - /mnt/media_1/photos:/data/photos:ro
             - "/mnt/media_2/Series:/data/tv"
             - "/mnt/media_1/cache/emby:/cache"
