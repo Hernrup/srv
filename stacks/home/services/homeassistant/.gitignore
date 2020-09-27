@@ -3,3 +3,6 @@
 secrets.yaml
 .storage
 html5_push_registrations.conf
+SERVICE_ACCOUNT.json
+www
+custom_components

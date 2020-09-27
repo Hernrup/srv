@@ -1,38 +1,10 @@
-group.all_switches:
-    hidden: false
-group.all_devices:
-    hidden: false
-group.all_lights:
-    hidden: false
-group.all_automations:
-    hidden: false
-group.all_scripts:
-    hidden: false
-
-
-sensor.living_room_humidity:
-    hidden: True
-sensor.bed_room_humidity:
-    hidden: True
-sensor.child_room_humidity:
-    hidden: True
-
-light.play_area_downstairs:
-    assumed_state: false
-
-switch.living_room_power:
-    assumed_state: false
-
-switch.home_remote:
-    assumed_state: false
-
-switch.home:
-    icon: mdi:home
-    assumed_state: false
-
-light.sofa_lights:
-    assumed_state: false
-light.whisky_light:
-    assumed_state: false
-light.liquor_cabinet:
-    assumed_state: false
+switch.o_rf_1:
+  assumed_state: false
+switch.o_rf_2:
+  assumed_state: false
+switch.o_rf_3:
+  assumed_state: false
+switch.o_rf_4:
+  assumed_state: false
+switch.o_rf_5:
+  assumed_state: false

@@ -33,6 +33,9 @@ views:
                     - light.whisky_light
                     - light.liquor_cabinet
                     - light.play_area_downstairs
+                    - light.light_tf1
+                    - switch.plug_tf1
+                    - switch.switch_tf1
 
               - type: picture-glance
                 title: Living room

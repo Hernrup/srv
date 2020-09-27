@@ -2,7 +2,7 @@ version: "3"
 services:
 
     hass:
-        image: homeassistant/home-assistant:0.103.5
+        image: homeassistant/home-assistant:0.115.3
         volumes:
             - ./services/homeassistant:/config
             - /var/data/homeassistant:/data
@@ -34,17 +34,24 @@ services:
         restart: unless-stopped
 
     deconz:
-        image: marthoc/deconz:amd64-2.05.71
+        image: marthoc/deconz:amd64-2.05.80
         volumes:
             - /var/data/deconz:/root/.local/share/dresden-elektronik/deCONZ
         devices:
             - /dev/ttyUSB0
+        ports:
+            - 8181:8080
+            - 5901:5901
         privileged: true
         labels:
             - "traefik.port=8080"
         restart: unless-stopped
         environment:
             - DECONZ_WEB_PORT=8080
+            - DECONZ_DEVICE=/dev/ttyUSB0
+            - DECONZ_VNC_MODE=1
+            - DECONZ_VNC_PORT=5901
+            - DECONZ_VNC_PASSWORD=changeme
 
     mqtt:
         image: eclipse-mosquitto
@@ -56,6 +63,25 @@ services:
             - "1883:1883"
             - "9001:9001"
         restart: unless-stopped
+
+    # nodered:
+    #   image: nodered/node-red-docker:v8
+    #   restart: unless-stopped
+    #   ports:
+    #     - 1880:1880
+    #     - 9229:9229
+    #   volumes:
+    #     - /etc/localtime:/etc/localtime:ro
+    #     - /var/data/nodered:/data
+    #   labels:
+    #     - "traefik.enable=true"
+    #     - "traefik.backend=nodered"
+    #     - "traefik.port=1880"
+    #     - "traefik.frontend.auth.basic=admin:$$apr1$$gagmyckp$$QOlwxjImT3OO8DWi2Z.P5."
+
+    ae:
+      image: hernrup/hass_ae:latest
+      restart: unless-stopped
 
 networks:
     default:

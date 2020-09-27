@@ -1,7 +1,7 @@
 homeassistant:
   name: Home
-  latitude: 59.0831
-  longitude: 12.9331
+  latitude: 55.8489037
+  longitude: 13.6673265
   elevation: 0
   unit_system: metric
   time_zone: Europe/Stockholm
@@ -9,26 +9,23 @@ homeassistant:
   auth_providers:
     - type: legacy_api_password
       api_password: !secret http_password
+    - type: homeassistant
+  external_url: https://hass.hernrup.se
 
 default_config:
 
 lovelace:
-  mode: yaml
+  # mode: yaml
 
 frontend:
-  themes: !include themes.yaml
+  themes: !include_dir_merge_named themes
 
 config:
-
-http:
-  base_url: hass.hernrup.se
 
 mqtt:
     broker: mqtt
 
 discovery:
-    ignore:
-        - plex_mediaserver
 
 # Allows you to issue voice commands from the frontend in enabled browsers
 conversation:
@@ -46,7 +43,6 @@ logbook:
 # Track the sun
 sun:
 
-
 logger:
     default: warn
     logs:
@@ -60,8 +56,6 @@ deconz:
 
 sensor: !include sensor.yaml
 switch: !include switch.yaml
-light: !include lights.yaml
-scene: !include scene.yaml
 
 weather:
   - platform: darksky
@@ -93,28 +87,53 @@ verisure:
     username: !secret verisure_username
     password: !secret verisure_password
 
-# Text to speech
-tts:
-  - platform: google_translate
-    service_name: google_say
-
-# group: !include groups.yaml
-automation: !include automations.yaml
-script: !include scripts.yaml
-
 rfxtrx:
     device: /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A128MSXO-if00-port0
     debug: False
+    automatic_add: true
+    devices:
+      # Linus sky lights | 1-2
+      0b1100140180470a02010f70:
+          fire_event: True
+      # Windows 1 | 2-2
+      0b11002b0180470a06010f70:
+          fire_event: True
+      # Windows 2 | 2-3
+      0b1100390180470a07010f70:
+          fire_event: True
+      # Entryway | 1-1
+      0b1100130180470a01010f70:
+          fire_event: True
+      # Tv | 3-1
+      0b11003d0180470a09010f60:
+          fire_event: True
+      # Carport
+      0a520d00c801006b280169:
+        fire_event: True
+      # Generated ARC switch
+      0b11000673bc0cfe00010f70:
+        fire_event: True
+      # Genreated ARC light
+      0b11000670bc0cfe05020f70:
+        fire_event: True
+      # Generated lightwave
+      0a14000606bc0cf6100f70:
+        fire_event: True
+      "0710010041010001":
+        fire_event: True
 
-google_assistant:
-    project_id: HomeAssistant
-    api_key: !secret google_assistant
-    expose_by_default: True
-    exposed_domains:
-        - switch
-        - light
-        - group
-        - scene
+
+# google_assistant:
+#   project_id: homeassistant-217419
+#   service_account: !include SERVICE_ACCOUNT.json
+#   report_state: true
+#   expose_by_default: True
+#   exposed_domains:
+#       - switch
+#       - light
+#       - group
+#       - scene
+#       - input_boolean
 
 notify:
     - name: notify
@@ -122,17 +141,3 @@ notify:
       vapid_pub_key: !secret vapid_pub_key
       vapid_prv_key: !secret vapid_prv_key
       vapid_email: !secret vapid_email
-#
-# device_tracker:
-#     - platform: asuswrt
-#       host: 192.168.1.1
-#       exclude:
-#           - 192.168.1.4
-#       username: !secret router_username
-#       password: !secret router_password
-#       interval_seconds: 15
-#       consider_home: 180
-#       new_device_defaults:
-#           track_new_devices: True
-#           hide_if_away: True
-#

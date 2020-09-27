@@ -1,11 +1,3 @@
 - platform: mqtt
   name: Home
   command_topic: "home/switch/set"
-
-- platform: rfxtrx
-  automatic_add: true
-  signal_repetitions: 2
-  devices:
-      0b1100130180470a01010f70:
-          name: Living room power
-          fire_event: True
