@@ -1,3 +1,0 @@
-- platform: mqtt
-  name: Home
-  command_topic: "home/switch/set"

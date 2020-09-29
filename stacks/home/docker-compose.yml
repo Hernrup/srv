@@ -4,8 +4,8 @@ services:
     hass:
         image: homeassistant/home-assistant:0.115.3
         volumes:
-            - ./services/homeassistant:/config
-            - /var/data/homeassistant:/data
+            - /var/data/homeassistant/config:/config
+            - /var/data/homeassistant/data:/data
             - /etc/localtime:/etc/localtime:ro
         ports:
             - "8123:8123"
@@ -64,24 +64,11 @@ services:
             - "9001:9001"
         restart: unless-stopped
 
-    # nodered:
-    #   image: nodered/node-red-docker:v8
-    #   restart: unless-stopped
-    #   ports:
-    #     - 1880:1880
-    #     - 9229:9229
-    #   volumes:
-    #     - /etc/localtime:/etc/localtime:ro
-    #     - /var/data/nodered:/data
-    #   labels:
-    #     - "traefik.enable=true"
-    #     - "traefik.backend=nodered"
-    #     - "traefik.port=1880"
-    #     - "traefik.frontend.auth.basic=admin:$$apr1$$gagmyckp$$QOlwxjImT3OO8DWi2Z.P5."
-
     ae:
       image: hernrup/hass_ae:latest
-      restart: unless-stopped
+      build:
+        context: ./services/hass_ae
+    restart: unless-stopped
 
 networks:
     default:
