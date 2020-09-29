@@ -1,0 +1,6 @@
+*.db
+**/venv
+**/node_modules
+/var/data/hydra/backup
+/var/data/emby
+/var/data/k_emby

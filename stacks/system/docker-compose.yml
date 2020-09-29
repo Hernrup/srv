@@ -20,35 +20,6 @@ services:
     #     volumes:
     #         - .data/vpn:/vpn
 
-    # consul:
-    #     image: docker.hernrup.se/consul
-    #     build: docker/consul
-    #     ports:
-    #         - "8500:8500"
-    #     environment:
-    #         - CONSUL_BIND=10.98.0.0/24
-    #     networks:
-    #         - ov
-    #     labels:
-    #         - "traefik.frontend.rule=Host:consul.hernrup.se"
-    #         - "traefik.enable=true"
-    #         - "traefik.frontend.auth.basic=admin:$$apr1$$gagmyckp$$QOlwxjImT3OO8DWi2Z.P5."
-    #     volumes:
-    #         - consul:/data
-    #
-
-    # portainer:
-    #     image: portainer/portainer
-    #     volumes:
-    #         - .data/portainer:/data
-    #         - /var/run/docker.sock:/var/run/docker.sock
-    #     ports:
-    #         - "9000:9000"
-    #     networks:
-    #         - ov
-    #
-    #
-
     traefik:
         image: traefik
         command: --api --docker --docker.domain=hernrup.se
@@ -58,7 +29,7 @@ services:
             - "8009:8080"
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
-            - ../../services/traefik/traefik.toml:/traefik.toml
+            - ./services/traefik/traefik.toml:/traefik.toml
             - letsencrypt:/etc/acme
         labels:
             - "traefik.frontend.rule=Host:traefik.hernrup.se"
@@ -73,6 +44,28 @@ services:
             - "traefik.enable=true"
             - "traefik.frontend.auth.basic=admin:$$apr1$$gagmyckp$$QOlwxjImT3OO8DWi2Z.P5."
 
+    db:
+        image: postgres
+        restart: always
+        environment:
+            POSTGRES_PASSWORD: pass
+
+    backup:
+        image: docker.hernrup.se/hernrup/backup:latest
+        hostname: backup
+        restart: unless-stopped
+        build:
+            context: ./services/backup
+        env_file:
+            - services/backup/.env
+        volumes:
+            - /var/data/backup/.ssh:/root/.ssh
+            - /mnt/media_1:/mnt/media_1:ro
+            - /var/data:/var/data:ro
+            - ./services/backup/backup.d:/etc/backup.d
+            - backup_tmp:/tmp
+            - backup_cache:/cache
+
 networks:
     default:
         driver: bridge
@@ -81,4 +74,8 @@ volumes:
     letsencrypt:
         driver: local
     consul:
+        driver: local
+    backup_tmp:
+        driver: local
+    backup_cache:
         driver: local
